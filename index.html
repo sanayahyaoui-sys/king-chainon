@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyse King & Chaînons</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f9f9f7;
+    --bg2: #ffffff;
+    --bg3: #f1efea;
+    --border: #e0ddd6;
+    --border2: #c8c4bb;
+    --text: #1a1a18;
+    --text2: #5a5a55;
+    --text3: #9a9a93;
+    --teal: #1D9E75;
+    --teal-light: #e1f5ee;
+    --teal-dark: #085041;
+    --purple: #534AB7;
+    --purple-light: #eeedfe;
+    --coral: #D85A30;
+    --coral-light: #faece7;
+    --blue: #378ADD;
+    --amber: #BA7517;
+    --amber-light: #faeeda;
+    --red: #A32D2D;
+    --green-text: #0F6E56;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+  /* HEADER */
+  .header { background: var(--bg2); border-bottom: 0.5px solid var(--border); padding: 16px 24px; position: sticky; top: 0; z-index: 100; }
+  .header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+  .header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; background: var(--bg2); border-bottom: 0.5px solid var(--border); padding: 0 24px; overflow-x: auto; }
+  .tab { padding: 12px 18px; cursor: pointer; font-size: 13px; color: var(--text2); border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -0.5px; white-space: nowrap; font-family: inherit; transition: color .15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+
+  /* LAYOUT */
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 20px; }
+  .step { display: none; }
+  .step.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
+  .card-sub { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+
+  /* FORMS */
+  input[type=text], select { height: 36px; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 0 12px; font-size: 13px; font-family: inherit; color: var(--text); background: var(--bg2); outline: none; transition: border-color .15s; }
+  input[type=text]:focus, select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(83,74,183,.12); }
+  select { cursor: pointer; }
+
+  /* BUTTONS */
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius); font-size: 13px; font-family: inherit; cursor: pointer; transition: all .15s; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text); font-weight: 500; }
+  .btn:hover { background: var(--bg3); }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--text); color: var(--bg2); border-color: var(--text); }
+  .btn-primary:hover { opacity: .85; background: var(--text); }
+  .btn-teal { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .btn-teal:hover { opacity: .88; background: var(--teal); }
+  .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+
+  /* TAGS */
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; min-height: 36px; align-items: center; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: 6px; padding: 4px 10px; font-size: 12px; }
+  .tag-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .tag-rm { cursor: pointer; color: var(--text3); font-size: 15px; line-height: 1; }
+  .tag-rm:hover { color: var(--red); }
+
+  /* PRESETS */
+  .preset-area { background: var(--bg3); border: 0.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 16px; }
+  .preset-area .card-sub { margin-bottom: 10px; }
+  .preset-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* IMPORT ZONE */
+  .import-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 18px; text-align: center; cursor: pointer; font-size: 13px; color: var(--text2); transition: all .15s; }
+  .import-zone:hover { background: var(--bg3); border-color: var(--purple); color: var(--text); }
+  .import-zone .hint { font-size: 11px; margin-top: 4px; color: var(--text3); }
+
+  /* PIECE LIST */
+  .piece-list { max-height: 280px; overflow-y: auto; border: 0.5px solid var(--border); border-radius: var(--radius); }
+  .piece-row { display: grid; grid-template-columns: 90px 1fr 32px; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 0.5px solid var(--border); }
+  .piece-row:last-child { border-bottom: none; }
+  .piece-row:nth-child(even) { background: var(--bg3); }
+  .piece-name { font-weight: 500; font-size: 13px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+  .chip { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; color: #fff; font-weight: 500; }
+  .chip-arrow { color: var(--text3); font-size: 10px; }
+  .piece-del { cursor: pointer; color: var(--text3); font-size: 16px; text-align: center; }
+  .piece-del:hover { color: var(--red); }
+  .empty-state { text-align: center; padding: 30px; font-size: 13px; color: var(--text3); }
+
+  /* GAMME EN COURS */
+  .gamme-preview { min-height: 38px; border: 0.5px dashed var(--border2); border-radius: var(--radius); padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-bottom: 10px; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--bg3); border-radius: var(--radius); padding: 12px 14px; text-align: center; }
+  .stat-val { font-size: 24px; font-weight: 600; color: var(--text); }
+  .stat-lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* ALERTS */
+  .alert { padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 14px; }
+  .alert-ok { background: var(--teal-light); color: var(--green-text); border: 0.5px solid #9fe1cb; }
+  .alert-warn { background: var(--amber-light); color: var(--amber); border: 0.5px solid #fac775; }
+
+  /* MATRIX */
+  .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.matrix { border-collapse: collapse; font-size: 12px; }
+  table.matrix th, table.matrix td { border: 0.5px solid var(--border); padding: 5px 7px; text-align: center; white-space: nowrap; }
+  table.matrix th { background: var(--bg3); font-weight: 500; position: sticky; top: 0; }
+  table.matrix th.row-h { position: sticky; left: 0; z-index: 2; text-align: left; padding-left: 10px; }
+  .cell-1 { background: #1D9E75; color: #fff; font-weight: 600; }
+  .cell-0 { background: var(--bg2); }
+  .cell-ilot { color: #fff; font-weight: 600; }
+
+  /* ILOTS */
+  .ilot-card { padding: 12px 14px; border-radius: var(--radius); margin-bottom: 8px; border-left: 3px solid; background: var(--bg3); }
+  .ilot-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .ilot-detail { font-size: 12px; color: var(--text2); line-height: 1.7; }
+
+  /* CHAINONS */
+  .chainon-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); gap: 10px; }
+  .chainon-row:last-child { border-bottom: none; }
+  .chainon-name { font-weight: 500; font-size: 13px; min-width: 120px; }
+  .chainon-dirs { font-size: 11px; color: var(--text3); min-width: 80px; }
+  .flux-bar-wrap { flex: 1; background: var(--bg3); border-radius: 4px; height: 8px; max-width: 160px; }
+  .flux-bar { height: 8px; border-radius: 4px; background: var(--teal); min-width: 4px; }
+  .flux-val { font-weight: 600; min-width: 30px; text-align: right; font-size: 13px; }
+
+  /* CANVAS */
+  #u-canvas { width: 100%; border-radius: var(--radius); display: block; }
+
+  /* NAV FOOTER */
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+
+  /* RANKING TABLE */
+  table.rank { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.rank th, table.rank td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); text-align: left; }
+  table.rank th { font-weight: 500; color: var(--text2); font-size: 12px; background: var(--bg3); }
+  table.rank tr:last-child td { border-bottom: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .container { padding: 16px 12px; }
+    .tab { padding: 10px 12px; font-size: 12px; }
+    .piece-row { grid-template-columns: 70px 1fr 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Analyse King &amp; Chaînons</h1>
+  <p>Saisissez vos données de production pour générer les matrices et l'implantation optimale</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="goTab(0)">1 · Postes</button>
+  <button class="tab" onclick="goTab(1)">2 · Pièces &amp; gammes</button>
+  <button class="tab" onclick="goTab(2)">3 · Matrice de King</button>
+  <button class="tab" onclick="goTab(3)">4 · Méthode des chaînons</button>
+</div>
+
+<div class="container">
+
+  <!-- ====== ÉTAPE 1 : POSTES ====== -->
+  <div class="step active" id="step0">
+    <div class="card">
+      <div class="card-title">Définir les postes de travail</div>
+      <div class="card-sub">Entrez le nom de chaque poste (machine) de votre îlot de fabrication</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input type="text" id="poste-input" placeholder="Ex: TRF23" style="flex:1" onkeydown="if(event.key==='Enter')addPoste()">
+        <button class="btn btn-primary" onclick="addPoste()">+ Ajouter</button>
+      </div>
+      <div class="tags-wrap" id="postes-tags">
+        <span style="font-size:12px;color:var(--text3)">Aucun poste défini</span>
+      </div>
+    </div>
+
+    <div class="preset-area">
+      <div class="card-sub">Ou chargez un exemple prédéfini :</div>
+      <div class="preset-btns">
+        <button class="btn" onclick="loadPreset('flux3')">FLUX 3 — TRF23-TRF24-LAV-BEE</button>
+        <button class="btn" onclick="loadPreset('flux41')">FLUX 4.1 — TRF38-TRF48</button>
+        <button class="btn" onclick="loadPreset('flux1')">FLUX 1 — 6 postes</button>
+      </div>
+    </div>
+
+    <div class="nav-footer">
+      <span></span>
+      <button class="btn btn-primary" onclick="goTab(1)">Suivant → Pièces &amp; gammes</button>
+    </div>
+  </div>
+
+  <!-- ====== ÉTAPE 2 : PIÈCES ====== -->
+  <div class="step" id="step1">
+    <div class="card">
+      <div class="card-title">Saisir les gammes opératoires</div>
+
+      <div class="import-zone" onclick="document.getElementById('csv-file').click()">
+        Importer un fichier CSV &nbsp;—&nbsp; format : <code>NomPiece;Poste1;Poste2;...</code>
+        <div class="hint">Cliquez pour choisir un fichier .csv ou .txt</div>
+        <input type="file" id="csv-file" accept=".csv,.txt" style="display:none" onchange="importCSV(event)">
+      </div>
+
+      <div style="text-align:center;font-size:12px;color:var(--text3);margin:10px 0">— ou saisissez manuellement —</div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center">
+        <input type="text" id="piece-name" placeholder="Nom pièce (ex: P01)" style="width:130px">
+        <select id="piece-poste" style="flex:1;min-width:120px"></select>
+        <button class="btn" onclick="addPosteToGamme()">+ Poste</button>
+        <button class="btn btn-teal" onclick="addPiece()">Valider pièce</button>
+      </div>
+
+      <div class="gamme-preview" id="gamme-preview">
+        <span style="font-size:12px;color:var(--text3)">Gamme en cours — ajoutez des postes ci-dessus</span>
+      </div>
+
+      <div id="pieces-list" class="piece-list">
+        <div class="empty-state">Aucune pièce ajoutée</div>
+      </div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="goTab(0)">← Retour</button>
+      <button class="btn btn-primary" onclick="computeKing()">Calculer → Matrice de King</button>
+    </div>
+  </div>
+
+  <!-- ====== ÉTAPE 3 : KING ====== -->
+  <div class="step" id="step2">
+    <div id="king-result">
+      <div class="alert alert-warn">Lancez d'abord le calcul depuis l'étape 2.</div>
+    </div>
+    <div class="nav-footer">
+      <button class="btn" onclick="goTab(1)">← Retour</button>
+      <button class="btn btn-primary" onclick="computeChainons()">Calculer → Méthode des chaînons</button>
+    </div>
+  </div>
+
+  <!-- ====== ÉTAPE 4 : CHAÎNONS ====== -->
+  <div class="step" id="step3">
+    <div id="chainons-result">
+      <div class="alert alert-warn">Lancez d'abord le calcul depuis l'étape 3.</div>
+    </div>
+    <div class="nav-footer">
+      <button class="btn" onclick="goTab(2)">← Retour</button>
+      <button class="btn" onclick="exportCSV()">Télécharger résultats CSV</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let postes = [];
+let pieces = [];
+let currentGamme = [];
+
+const COLORS = [
+  '#1D9E75','#534AB7','#D85A30','#378ADD',
+  '#BA7517','#993556','#3B6D11','#A32D2D','#0F6E56','#634AB7'
+];
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goTab(n) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===n));
+  document.querySelectorAll('.step').forEach((s,i) => s.classList.toggle('active', i===n));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ============================================================
+// ÉTAPE 1 : POSTES
+// ============================================================
+function addPoste() {
+  const v = document.getElementById('poste-input').value.trim().toUpperCase();
+  if (!v || postes.includes(v)) return;
+  postes.push(v);
+  document.getElementById('poste-input').value = '';
+  renderPostes();
+  updateSelect();
+}
+
+function removePoste(p) {
+  postes = postes.filter(x => x !== p);
+  renderPostes();
+  updateSelect();
+}
+
+function renderPostes() {
+  const c = document.getElementById('postes-tags');
+  if (postes.length === 0) {
+    c.innerHTML = '<span style="font-size:12px;color:var(--text3)">Aucun poste défini</span>';
+    return;
+  }
+  c.innerHTML = postes.map((p,i) =>
+    `<span class="tag">
+      <span class="tag-dot" style="background:${COLORS[i%COLORS.length]}"></span>
+      ${p}
+      <span class="tag-rm" onclick="removePoste('${p}')">&times;</span>
+    </span>`
+  ).join('');
+}
+
+function updateSelect() {
+  const s = document.getElementById('piece-poste');
+  s.innerHTML = postes.length
+    ? postes.map(p => `<option value="${p}">${p}</option>`).join('')
+    : '<option value="">— définissez d\'abord les postes —</option>';
+}
+
+// ============================================================
+// ÉTAPE 2 : PIÈCES
+// ============================================================
+function addPosteToGamme() {
+  const p = document.getElementById('piece-poste').value;
+  if (!p) { alert('Définissez d\'abord des postes dans l\'étape 1.'); return; }
+  currentGamme.push(p);
+  renderGammePreview();
+}
+
+function removeFromGamme(i) {
+  currentGamme.splice(i, 1);
+  renderGammePreview();
+}
+
+function renderGammePreview() {
+  const c = document.getElementById('gamme-preview');
+  if (currentGamme.length === 0) {
+    c.innerHTML = '<span style="font-size:12px;color:var(--text3)">Gamme en cours — ajoutez des postes ci-dessus</span>';
+    return;
+  }
+  c.innerHTML = currentGamme.map((p, i) => {
+    const ci = postes.indexOf(p);
+    return (i > 0 ? '<span class="chip-arrow">→</span>' : '')
+      + `<span class="tag" style="border-color:${COLORS[ci%COLORS.length]}55">
+          <span class="tag-dot" style="background:${COLORS[ci%COLORS.length]}"></span>
+          ${p}
+          <span class="tag-rm" onclick="removeFromGamme(${i})">&times;</span>
+        </span>`;
+  }).join('');
+}
+
+function addPiece() {
+  if (currentGamme.length === 0) { alert('Ajoutez au moins un poste à la gamme avant de valider.'); return; }
+  const name = document.getElementById('piece-name').value.trim() || `P${String(pieces.length+1).padStart(2,'0')}`;
+  pieces.push({ name, gamme: [...currentGamme] });
+  currentGamme = [];
+  document.getElementById('piece-name').value = '';
+  renderGammePreview();
+  renderPieces();
+}
+
+function removePiece(i) {
+  pieces.splice(i, 1);
+  renderPieces();
+}
+
+function renderPieces() {
+  const c = document.getElementById('pieces-list');
+  if (pieces.length === 0) {
+    c.innerHTML = '<div class="empty-state">Aucune pièce ajoutée</div>';
+    return;
+  }
+  c.innerHTML = `
+    <div class="piece-row" style="background:var(--bg3);font-weight:500;font-size:12px;color:var(--text2)">
+      <span>Pièce</span><span>Gamme opératoire</span><span></span>
+    </div>
+    ${pieces.map((p,i) => `
+      <div class="piece-row">
+        <span class="piece-name">${p.name}</span>
+        <span class="chips">
+          ${p.gamme.map((m, mi) => {
+            const ci = postes.indexOf(m);
+            return (mi>0?'<span class="chip-arrow">→</span>':'')
+              + `<span class="chip" style="background:${COLORS[ci%COLORS.length]}">${m}</span>`;
+          }).join('')}
+        </span>
+        <span class="piece-del" onclick="removePiece(${i})">&times;</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+function importCSV(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const lines = ev.target.result.split('\n').filter(l => l.trim());
+    let imported = 0;
+    lines.forEach(line => {
+      const cells = line.split(/[,;|\t]/).map(c => c.trim().replace(/"/g,'')).filter(Boolean);
+      if (cells.length < 2) return;
+      const pName = cells[0];
+      const gamme = cells.slice(1).map(m => m.toUpperCase());
+      // auto-ajouter les postes manquants
+      gamme.forEach(m => { if (!postes.includes(m)) { postes.push(m); } });
+      pieces.push({ name: pName, gamme });
+      imported++;
+    });
+    renderPostes(); updateSelect(); renderPieces();
+    alert(`${imported} pièce(s) importée(s) avec succès.`);
+  };
+  reader.readAsText(f);
+  e.target.value = '';
+}
+
+// ============================================================
+// PRESETS
+// ============================================================
+function loadPreset(id) {
+  postes = []; pieces = [];
+  if (id === 'flux3') {
+    postes = ['TRF23','TRF24','LAV','BEE'];
+    const defs = [
+      {n:'P01',g:['TRF23','TRF24','LAV','BEE']},{n:'P02',g:['TRF23','TRF24','LAV','BEE']},
+      {n:'P03',g:['TRF23','TRF24','LAV','BEE']},{n:'P04',g:['TRF23','TRF24','LAV','BEE']},
+      {n:'P05',g:['TRF23','TRF24','LAV','BEE']},{n:'P06',g:['TRF23','TRF24','LAV','BEE']},
+      {n:'P07',g:['TRF23','TRF24','LAV','BEE']},{n:'P08',g:['TRF23','TRF24','LAV','BEE']},
+      {n:'P09',g:['TRF23','TRF24','LAV','BEE']},{n:'P10',g:['TRF23','TRF24','LAV','BEE']},
+      {n:'P11',g:['TRF23','TRF24','LAV','BEE']},{n:'P12',g:['TRF23','TRF24','LAV','BEE']},
+      {n:'P13',g:['TRF23','TRF24','LAV','BEE']},{n:'P14',g:['TRF23','TRF24','LAV','BEE']},
+      {n:'P15',g:['TRF23','LAV','BEE']},{n:'P16',g:['TRF23','LAV','BEE']},
+      {n:'P17',g:['TRF23','LAV','BEE']},{n:'P18',g:['TRF23','LAV','BEE']},
+      {n:'P19',g:['TRF23','LAV','BEE']},{n:'P20',g:['TRF23','LAV','BEE']},
+      {n:'P21',g:['TRF23','LAV','BEE']},
+      {n:'P22',g:['TRF24','LAV','BEE']},{n:'P23',g:['TRF24','LAV','BEE']},
+      {n:'P24',g:['TRF24','LAV','BEE']},{n:'P25',g:['TRF24','LAV','BEE']},
+      {n:'P26',g:['TRF23','TRF24','BEE']},{n:'P27',g:['TRF23','TRF24','BEE']},
+    ];
+    defs.forEach(d => pieces.push({name:d.n, gamme:d.g}));
+  } else if (id === 'flux41') {
+    postes = ['TRF38','TRF48'];
+    for (let i=1;i<=8;i++) pieces.push({name:`P${String(i).padStart(2,'0')}`,gamme:['TRF38','TRF48']});
+    pieces.push({name:'P09',gamme:['TRF38']});
+    pieces.push({name:'P10',gamme:['TRF48']});
+  } else if (id === 'flux1') {
+    postes = ['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23'];
+    const defs = [
+      {n:'P01',g:['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23']},
+      {n:'P02',g:['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23']},
+      {n:'P03',g:['TRF19','TRF27','LAV05','BEE30','TOU23']},
+      {n:'P04',g:['TRF19','TRF27','LAV05','BEE30']},
+      {n:'P05',g:['TRF27','LAV05','PUS06','BEE30','TOU23']},
+      {n:'P06',g:['TRF19','LAV05','PUS06','TOU23']},
+      {n:'P07',g:['TRF19','TRF27','PUS06','BEE30']},
+    ];
+    defs.forEach(d => pieces.push({name:d.n, gamme:d.g}));
+  }
+  currentGamme = [];
+  renderPostes(); updateSelect(); renderPieces(); renderGammePreview();
+  goTab(0);
+  setTimeout(() => goTab(1), 100);
+}
+
+// ============================================================
+// ALGO KING
+// ============================================================
+function buildIncidenceMatrix() {
+  return postes.map(p =>
+    pieces.map(pc => pc.gamme.includes(p) ? 1 : 0)
+  );
+}
+
+function kingAlgorithm(mat0, mNames0, pNames0) {
+  let mat = mat0.map(r => [...r]);
+  let mNames = [...mNames0], pNames = [...pNames0];
+  for (let iter = 0; iter < 12; iter++) {
+    const nm = mat.length, np = mat[0].length;
+    const pw2m = Array.from({length:nm}, (_,i) => Math.pow(2, i));
+    const scoreP = Array(np).fill(0);
+    for (let j=0;j<np;j++) for (let i=0;i<nm;i++) scoreP[j] += pw2m[i] * mat[i][j];
+    const ordP = [...Array(np).keys()].sort((a,b) => scoreP[a]-scoreP[b]);
+    mat = mat.map(r => ordP.map(j => r[j]));
+    pNames = ordP.map(j => pNames[j]);
+    const pw2p = Array.from({length:np}, (_,j) => Math.pow(2, j));
+    const scoreM = Array(nm).fill(0);
+    for (let i=0;i<nm;i++) for (let j=0;j<np;j++) scoreM[i] += pw2p[j] * mat[i][j];
+    const ordM = [...Array(nm).keys()].sort((a,b) => scoreM[a]-scoreM[b]);
+    mat = ordM.map(i => mat[i]);
+    mNames = ordM.map(i => mNames[i]);
+  }
+  return {mat, mNames, pNames};
+}
+
+function detectGroups(mat) {
+  const np = mat[0].length;
+  const groups = [];
+  let cStart = 0;
+  while (cStart < np) {
+    let cEnd = cStart;
+    const rows = new Set();
+    mat.forEach((r,i) => { if (r[cStart]) rows.add(i); });
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (let j = cEnd+1; j < np; j++) {
+        let shared = false;
+        mat.forEach((r,i) => { if (rows.has(i) && r[j]) shared = true; });
+        if (shared) {
+          mat.forEach((r,i) => { if (r[j]) rows.add(i); });
+          cEnd = j; changed = true;
+        }
+      }
+    }
+    groups.push({cStart, cEnd, rows: [...rows].sort((a,b)=>a-b)});
+    cStart = cEnd + 1;
+  }
+  return groups;
+}
+
+function computeKing() {
+  if (postes.length===0 || pieces.length===0) {
+    alert('Ajoutez des postes et des pièces avant de calculer.');
+    return;
+  }
+  const mat0 = buildIncidenceMatrix();
+  const {mat, mNames, pNames} = kingAlgorithm(mat0, postes, pieces.map(p=>p.name));
+  const groups = detectGroups(mat);
+  window._king = {mat, mNames, pNames, groups};
+
+  const GCOLS = ['#1D9E75','#534AB7','#D85A30','#378ADD','#BA7517','#993556'];
+
+  let html = `<div class="stats-grid">
+    <div class="stat-card"><div class="stat-val">${postes.length}</div><div class="stat-lbl">Postes</div></div>
+    <div class="stat-card"><div class="stat-val">${pieces.length}</div><div class="stat-lbl">Pièces</div></div>
+    <div class="stat-card"><div class="stat-val">${groups.length}</div><div class="stat-lbl">Îlots détectés</div></div>
+  </div>`;
+
+  html += `<div class="alert alert-ok">Matrice de King calculée — ${groups.length} îlot(s) identifié(s) par l'algorithme de tri binaire.</div>`;
+
+  // MATRIX
+  html += `<div class="card"><div class="card-title">Matrice d'incidence réordonnée</div><div class="matrix-wrap"><table class="matrix"><thead><tr><th class="row-h">Machine \\ Pièce</th>`;
+  pNames.forEach((p,j) => {
+    const gi = groups.findIndex(g => j>=g.cStart && j<=g.cEnd);
+    const col = gi>=0 ? GCOLS[gi%GCOLS.length] : '';
+    html += `<th style="font-size:10px;${col?'color:'+col:''}">${p}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+  mNames.forEach((m,i) => {
+    const mi = postes.indexOf(m);
+    const col = COLORS[mi%COLORS.length];
+    html += `<tr><th class="row-h"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:6px;vertical-align:middle"></span>${m}</th>`;
+    mat[i].forEach((v,j) => {
+      const gi = groups.findIndex(g => j>=g.cStart && j<=g.cEnd);
+      const gc = gi>=0 ? GCOLS[gi%GCOLS.length] : '#1D9E75';
+      html += v
+        ? `<td class="cell-ilot" style="background:${gc}cc">1</td>`
+        : `<td class="cell-0"></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+
+  // ILOTS
+  html += `<div class="card"><div class="card-title">Îlots de fabrication identifiés</div>`;
+  groups.forEach((g,gi) => {
+    const machines = g.rows.map(r => mNames[r]);
+    const pList = pNames.slice(g.cStart, g.cEnd+1);
+    const col = GCOLS[gi%GCOLS.length];
+    html += `<div class="ilot-card" style="border-left-color:${col}">
+      <div class="ilot-title" style="color:${col}">Îlot ${gi+1}</div>
+      <div class="ilot-detail">
+        <strong>Machines :</strong> ${machines.join(' — ')}<br>
+        <strong>Pièces :</strong> ${pList.join(', ')} <span style="color:var(--text3)">(${pList.length} pièces)</span>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  document.getElementById('king-result').innerHTML = html;
+  goTab(2);
+}
+
+// ============================================================
+// ALGO CHAÎNONS
+// ============================================================
+function buildChainTable() {
+  const n = postes.length;
+  const tbl = Array.from({length:n}, () => Array(n).fill(0));
+  pieces.forEach(p => {
+    for (let k=0; k<p.gamme.length-1; k++) {
+      const a = postes.indexOf(p.gamme[k]);
+      const b = postes.indexOf(p.gamme[k+1]);
+      if (a>=0 && b>=0) tbl[a][b]++;
+    }
+  });
+  return tbl;
+}
+
+function buildSymMatrix(tbl) {
+  const n = postes.length;
+  const sym = Array.from({length:n}, () => Array(n).fill(0));
+  for (let i=0;i<n;i++) for (let j=0;j<n;j++) if (i!==j) sym[i][j] = tbl[i][j]+tbl[j][i];
+  return sym;
+}
+
+function optimiserPlacement(sym) {
+  const n = postes.length;
+  if (n===0) return {ordre:[], score:0};
+  const perms = arr => {
+    if (arr.length<=1) return [arr];
+    const r=[];
+    arr.forEach((x,i) => perms([...arr.slice(0,i),...arr.slice(i+1)]).forEach(p=>r.push([x,...p])));
+    return r;
+  };
+  const idxs = [...Array(n).keys()];
+  const allPerms = n<=7 ? perms(idxs) : [idxs];
+  let best=Infinity, bestOrdre=postes;
+  allPerms.forEach(perm => {
+    let score=0;
+    for (let i=0;i<n;i++) for (let j=i+1;j<n;j++) score+=sym[perm[i]][perm[j]]*Math.abs(i-j);
+    if (score<best) { best=score; bestOrdre=perm.map(i=>postes[i]); }
+  });
+  return {ordre:bestOrdre, score:best};
+}
+
+function computeChainons() {
+  if (postes.length===0 || pieces.length===0) return;
+  const tbl = buildChainTable();
+  const sym = buildSymMatrix(tbl);
+  const nbC = {};
+  postes.forEach((p,i) => {
+    nbC[p] = postes.reduce((s,_,j) => j!==i ? s+sym[i][j] : s, 0);
+  });
+  const {ordre, score} = optimiserPlacement(sym);
+  window._chainons = {tbl, sym, nbC, ordre, score};
+
+  const maxFlux = Math.max(1, ...postes.flatMap((_,i)=>postes.map((_,j)=>j>i?sym[i][j]:0)).filter(v=>v>0));
+
+  let html = `<div class="stats-grid">
+    ${ordre.map((p,k) => `<div class="stat-card">
+      <div class="stat-val" style="color:${COLORS[postes.indexOf(p)%COLORS.length]}">${nbC[p]}</div>
+      <div class="stat-lbl">${p} — rang ${k+1}</div>
+    </div>`).join('')}
+  </div>`;
+
+  // TABLE CHAÎNONS
+  const chainList=[];
+  postes.forEach((p,i) => postes.forEach((q,j) => {
+    if (j>i && sym[i][j]>0) chainList.push({a:p,b:q,flux:sym[i][j],ab:tbl[i][j],ba:tbl[j][i]});
+  }));
+  chainList.sort((x,y)=>y.flux-x.flux);
+
+  html += `<div class="card"><div class="card-title">Table des chaînons (indices de flux)</div>`;
+  chainList.forEach(c => {
+    const w = Math.round(c.flux/maxFlux*160);
+    html += `<div class="chainon-row">
+      <span class="chainon-name">${c.a} ↔ ${c.b}</span>
+      <span class="chainon-dirs">${c.ab} → &nbsp;/&nbsp; ${c.ba} ←</span>
+      <div class="flux-bar-wrap"><div class="flux-bar" style="width:${w}px"></div></div>
+      <span class="flux-val">${c.flux}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // CLASSEMENT
+  html += `<div class="card"><div class="card-title">Classement des postes par nombre de chaînons</div>
+    <table class="rank"><thead><tr><th>Rang</th><th>Poste</th><th>Nb chaînons</th><th>Rôle</th></tr></thead><tbody>`;
+  ordre.forEach((p,k) => {
+    html += `<tr>
+      <td><strong>#${k+1}</strong></td>
+      <td><span class="chip" style="background:${COLORS[postes.indexOf(p)%COLORS.length]}">${p}</span></td>
+      <td>${nbC[p]}</td>
+      <td>${k===0?'Poste central (le plus connecté)':k===ordre.length-1?'Poste périphérique':''}</td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+
+  // SCHEMA EN U
+  html += `<div class="card"><div class="card-title">Implantation optimale — schéma en U</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+      Ordre optimal : ${ordre.join(' → ')} &nbsp;&nbsp;|&nbsp;&nbsp; Score flux×distance : ${score}
+    </div>
+    <canvas id="u-canvas" height="280"></canvas>
+  </div>`;
+
+  document.getElementById('chainons-result').innerHTML = html;
+  goTab(3);
+  setTimeout(() => drawU(ordre, sym, nbC), 80);
+}
+
+// ============================================================
+// SCHÉMA EN U
+// ============================================================
+function drawU(ordre, sym, nbC) {
+  const canvas = document.getElementById('u-canvas');
+  if (!canvas) return;
+  const W = canvas.offsetWidth || 860;
+  const H = 280;
+  canvas.width = W * window.devicePixelRatio;
+  canvas.height = H * window.devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  const n = ordre.length;
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const bgColor = isDark ? '#1a1a18' : '#f9f9f7';
+  const textColor = isDark ? '#c8c8c0' : '#1a1a18';
+  const mutedColor = isDark ? '#6a6a62' : '#9a9a93';
+
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0,0,W,H);
+
+  const top = Math.ceil(n/2), bot = n-top;
+  const maxCols = Math.max(top, bot);
+  const bw = Math.min(100, Math.floor((W-60) / (maxCols + 0.5)));
+  const bh = 52;
+  const gap = Math.min(30, (W - 40 - maxCols*bw) / Math.max(1, maxCols-1));
+  const startX = (W - (maxCols*bw + (maxCols-1)*gap)) / 2 + bw/2;
+
+  const positions = {};
+
+  // Top row (left → right)
+  for (let i=0; i<top; i++) {
+    positions[ordre[i]] = {x: startX + i*(bw+gap), y: 52 + bh/2};
+  }
+  // Bottom row (right → left so the U closes)
+  for (let i=0; i<bot; i++) {
+    const p = ordre[top+i];
+    const col = (bot-1-i);
+    positions[p] = {x: startX + col*(bw+gap), y: 195 + bh/2};
+  }
+
+  const getFlux = (a,b) => {
+    const i=postes.indexOf(a), j=postes.indexOf(b);
+    if (i<0||j<0) return 0;
+    return sym[Math.min(i,j)][Math.max(i,j)];
+  };
+  const maxF = Math.max(1,...ordre.flatMap((a,ai)=>ordre.slice(ai+1).map(b=>getFlux(a,b))));
+
+  // Flèches entre postes consécutifs
+  for (let k=0; k<n-1; k++) {
+    const a=ordre[k], b=ordre[k+1];
+    const pa=positions[a], pb=positions[b];
+    const fv=getFlux(a,b);
+    const lw = 1.5 + (fv/maxF)*3.5;
+
+    ctx.beginPath();
+    if (Math.abs(pa.y - pb.y) > 50) {
+      // virage en U (haut → bas)
+      const mx = (pa.x + pb.x)/2;
+      ctx.moveTo(pa.x, pa.y);
+      ctx.bezierCurveTo(pa.x, pa.y+55, pb.x, pb.y-55, pb.x, pb.y);
+    } else {
+      ctx.moveTo(pa.x, pa.y);
+      ctx.lineTo(pb.x, pb.y);
+    }
+    ctx.strokeStyle = '#534AB7';
+    ctx.lineWidth = lw;
+    ctx.globalAlpha = 0.55 + (fv/maxF)*0.4;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // label flux
+    const mx2 = (pa.x+pb.x)/2;
+    const my2 = Math.abs(pa.y-pb.y)>50 ? (pa.y+pb.y)/2 : pa.y - 14;
+    ctx.fillStyle = '#534AB7';
+    ctx.font = `500 11px -apple-system,sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(fv, mx2, my2);
+  }
+
+  // Boîtes
+  ordre.forEach((p, k) => {
+    const pos = positions[p];
+    const ci = COLORS[postes.indexOf(p) % COLORS.length];
+    const x = pos.x - bw/2, y = pos.y - bh/2;
+
+    // shadow subtle
+    ctx.fillStyle = isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.06)';
+    roundRect(ctx, x+2, y+2, bw, bh, 8);
+    ctx.fill();
+
+    // box
+    ctx.fillStyle = ci;
+    roundRect(ctx, x, y, bw, bh, 8);
+    ctx.fill();
+
+    // text
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `600 13px -apple-system,sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(p, pos.x, pos.y + 1);
+    ctx.font = `400 10px -apple-system,sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText(`C=${nbC[p]}`, pos.x, pos.y + 15);
+    ctx.fillText(`Poste ${k+1}`, pos.x, pos.y + 26);
+  });
+
+  // Flèche flux principal en bas
+  const arrowY = H - 16;
+  ctx.beginPath();
+  ctx.moveTo(30, arrowY);
+  ctx.lineTo(W-30, arrowY);
+  ctx.strokeStyle = '#1D9E75';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5,4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#1D9E75';
+  ctx.beginPath();
+  ctx.moveTo(W-28, arrowY);
+  ctx.lineTo(W-38, arrowY-4);
+  ctx.lineTo(W-38, arrowY+4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.font = `400 11px -apple-system,sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#1D9E75';
+  ctx.fillText('Flux de production', W/2, arrowY - 5);
+
+  // Légende ENTRÉE / SORTIE
+  if (ordre.length >= 2) {
+    const pe = positions[ordre[0]];
+    const ps = positions[ordre[n-1]];
+    ctx.font = `500 10px -apple-system,sans-serif`;
+    ctx.fillStyle = '#1D9E75';
+    ctx.textAlign = 'center';
+    ctx.fillText('ENTRÉE', pe.x, pe.y - bh/2 - 6);
+    ctx.fillStyle = '#D85A30';
+    ctx.fillText('SORTIE', ps.x, ps.y - bh/2 - 6);
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+  if (!window._chainons) { alert('Calculez d\'abord les résultats.'); return; }
+  const {ordre, nbC, score, sym, tbl} = window._chainons;
+  let csv = 'sep=;\n';
+  csv += 'CLASSEMENT DES POSTES\n';
+  csv += 'Rang;Poste;Nb chaînons\n';
+  ordre.forEach((p,i) => csv += `${i+1};${p};${nbC[p]}\n`);
+  csv += `\nOrdre optimal;${ordre.join(' → ')}\n`;
+  csv += `Score flux×distance;${score}\n\n`;
+  csv += 'TABLE DES CHAÎNONS\n';
+  csv += 'Poste A;Poste B;Flux total;A→B;B→A\n';
+  postes.forEach((p,i) => postes.forEach((q,j) => {
+    if (j>i && sym[i][j]>0) csv += `${p};${q};${sym[i][j]};${tbl[i][j]};${tbl[j][i]}\n`;
+  }));
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'resultats_king_chainons.csv';
+  a.click();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+updateSelect();
+</script>
+</body>
+</html>
