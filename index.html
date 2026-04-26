@@ -3,516 +3,626 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>King & Chaînons</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>King & Chaînons — Analyse d'îlots de fabrication</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0a0a08;
-  --paper:#f5f2ec;
-  --paper2:#ede9e0;
-  --paper3:#e2ddd3;
-  --line:#c8c3b5;
-  --line2:#a8a296;
-  --accent:#e8401c;
-  --accent2:#1c6be8;
-  --accent3:#18a86b;
-  --accent4:#d4a017;
-  --text-muted:#6b6660;
-  --mono:'Space Mono',monospace;
-  --sans:'Syne',sans-serif;
+  --ink:#0a0a08;--paper:#f5f2ec;--paper2:#edeae0;--paper3:#e2ddd3;
+  --line:#c8c3b5;--line2:#a8a296;--muted:#6b6660;
+  --red:#e8401c;--blue:#1c6be8;--green:#18a86b;--gold:#d4a017;--purple:#8b2e85;
+  --mono:'Space Mono',monospace;--sans:'Syne',sans-serif;
 }
-html{scroll-behavior:smooth}
-body{
-  font-family:var(--sans);
-  background:var(--paper);
-  color:var(--ink);
-  font-size:14px;
-  min-height:100vh;
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:14px;min-height:100vh;overflow-x:hidden}
+
+/* ══════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════ */
+#landing{
+  min-height:100vh;background:var(--ink);color:var(--paper);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+
+/* grille animée en fond */
+#landing::before{
+  content:'';position:absolute;inset:0;
   background-image:
-    repeating-linear-gradient(0deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px),
-    repeating-linear-gradient(90deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px);
-  background-size:40px 40px;
+    repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,.04) 59px,rgba(255,255,255,.04) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,.04) 59px,rgba(255,255,255,.04) 60px);
+  background-size:60px 60px;
+  animation:gridMove 20s linear infinite;
+}
+@keyframes gridMove{from{background-position:0 0}to{background-position:60px 60px}}
+
+/* blob de couleur */
+.blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:blobFloat 8s ease-in-out infinite}
+.blob1{width:500px;height:500px;background:var(--red);opacity:.12;top:-150px;right:-100px;animation-delay:0s}
+.blob2{width:400px;height:400px;background:var(--blue);opacity:.1;bottom:-100px;left:-80px;animation-delay:-3s}
+.blob3{width:300px;height:300px;background:var(--green);opacity:.08;top:40%;left:40%;animation-delay:-6s}
+@keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,15px) scale(.97)}}
+
+/* nav landing */
+.land-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:28px 48px;position:relative;z-index:10;
+}
+.land-logo{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.land-logo span{color:var(--red)}
+.land-nav-tag{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+/* hero */
+.hero{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:40px 48px;position:relative;z-index:10;
+}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;max-width:1100px;width:100%}
+
+.hero-left{}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:3px;
+  color:var(--red);text-transform:uppercase;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-eyebrow::before{content:'';width:32px;height:1.5px;background:var(--red)}
+.hero-h1{font-size:56px;font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:24px}
+.hero-h1 em{font-style:normal;color:var(--red)}
+.hero-h1 .amp{color:rgba(255,255,255,.2)}
+.hero-desc{font-size:15px;color:rgba(255,255,255,.45);line-height:1.8;margin-bottom:36px;max-width:400px}
+
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px}
+.htag{
+  font-family:var(--mono);font-size:10px;letter-spacing:1px;
+  border:1px solid rgba(255,255,255,.12);border-radius:4px;
+  padding:5px 12px;color:rgba(255,255,255,.4);text-transform:uppercase;
 }
 
-/* ══ LAYOUT ══ */
-.shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+/* LOGIN CARD */
+.login-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:36px;
+  backdrop-filter:blur(20px);
+  position:relative;overflow:hidden;
+}
+.login-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--red),var(--blue),var(--green));
+}
+.login-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.login-sub{font-size:12px;color:rgba(255,255,255,.35);font-family:var(--mono);margin-bottom:28px}
 
-/* ══ SIDEBAR ══ */
+.lfield{margin-bottom:16px}
+.lfield label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px}
+.lfield input{
+  width:100%;height:46px;border:1px solid rgba(255,255,255,.12);border-radius:10px;
+  padding:0 16px;font-size:13px;font-family:var(--sans);font-weight:600;
+  color:var(--paper);background:rgba(255,255,255,.06);outline:none;
+  transition:border-color .2s,background .2s;
+}
+.lfield input:focus{border-color:var(--red);background:rgba(255,255,255,.09)}
+.lfield input::placeholder{color:rgba(255,255,255,.2);font-weight:400}
+
+.login-btn{
+  width:100%;height:48px;border:none;border-radius:10px;
+  background:var(--red);color:#fff;font-size:14px;font-weight:800;
+  font-family:var(--sans);cursor:pointer;margin-top:8px;
+  transition:all .2s;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.login-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
+}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(232,64,28,.4)}
+.login-btn:active{transform:translateY(0)}
+
+.login-divider{
+  display:flex;align-items:center;gap:12px;
+  font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.2);
+  margin:20px 0;
+}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+
+.guest-btn{
+  width:100%;height:44px;border:1px solid rgba(255,255,255,.12);border-radius:10px;
+  background:transparent;color:rgba(255,255,255,.5);font-size:13px;font-weight:700;
+  font-family:var(--sans);cursor:pointer;transition:all .2s;
+}
+.guest-btn:hover{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.8);background:rgba(255,255,255,.05)}
+
+.login-error{
+  background:rgba(232,64,28,.12);border:1px solid rgba(232,64,28,.3);
+  border-radius:8px;padding:10px 14px;font-size:12px;color:#ff9080;
+  font-family:var(--mono);margin-bottom:16px;display:none;
+}
+.login-success{
+  background:rgba(24,168,107,.12);border:1px solid rgba(24,168,107,.3);
+  border-radius:8px;padding:10px 14px;font-size:12px;color:#5de8a8;
+  font-family:var(--mono);margin-bottom:16px;display:none;
+}
+.auth-tabs{
+  display:flex;gap:4px;background:rgba(255,255,255,.06);
+  border-radius:10px;padding:4px;margin-bottom:20px;
+}
+.auth-tab{
+  flex:1;height:36px;border:none;border-radius:7px;
+  font-size:12px;font-weight:700;font-family:var(--sans);
+  cursor:pointer;color:rgba(255,255,255,.4);background:transparent;
+  transition:all .2s;
+}
+.auth-tab.active{background:var(--red);color:#fff;}
+.auth-tab:hover:not(.active){color:rgba(255,255,255,.7);}
+
+/* stats barre */
+.land-stats{
+  display:flex;gap:0;border-top:1px solid rgba(255,255,255,.06);
+  position:relative;z-index:10;
+}
+.lstat{
+  flex:1;padding:20px 32px;border-right:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:14px;
+}
+.lstat:last-child{border-right:none}
+.lstat-val{font-size:22px;font-weight:800;font-family:var(--mono)}
+.lstat-lbl{font-size:11px;color:rgba(255,255,255,.3);line-height:1.4}
+
+/* ══════════════════════════════════════
+   APP (hidden until login)
+══════════════════════════════════════ */
+#app{display:none}
+.shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* SIDEBAR */
 .sidebar{
-  background:var(--ink);
-  color:var(--paper);
+  background:var(--ink);color:var(--paper);
   display:flex;flex-direction:column;
-  position:sticky;top:0;height:100vh;
-  overflow:hidden;
+  position:sticky;top:0;height:100vh;overflow:hidden;
 }
 .sidebar::before{
-  content:'';position:absolute;top:-80px;right:-80px;
-  width:260px;height:260px;border-radius:50%;
-  background:var(--accent);opacity:.08;pointer-events:none;
+  content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;
+  border-radius:50%;background:var(--red);opacity:.07;pointer-events:none;
 }
-.brand{padding:32px 28px 24px;border-bottom:1px solid rgba(255,255,255,.08)}
-.brand-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
-.brand-title{font-size:26px;font-weight:800;line-height:1.1;letter-spacing:-.5px}
-.brand-title span{color:var(--accent)}
-.brand-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:8px;line-height:1.6}
+.brand{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
+.brand-eye{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px}
+.brand-title{font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.15}
+.brand-title span{color:var(--red)}
+.brand-user{
+  margin-top:14px;display:flex;align-items:center;gap:10px;
+  padding:10px 12px;background:rgba(255,255,255,.05);border-radius:8px;
+}
+.avatar{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--red);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:13px;flex-shrink:0;
+}
+.user-name{font-size:12px;font-weight:700}
+.user-role{font-size:10px;color:rgba(255,255,255,.3);font-family:var(--mono)}
 
-.nav{padding:20px 16px;flex:1}
-.nav-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.25);text-transform:uppercase;padding:0 12px;margin-bottom:8px;margin-top:16px}
+.nav{padding:18px 12px;flex:1}
+.nav-lbl{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.2);text-transform:uppercase;padding:0 10px;margin:14px 0 6px}
 .nav-item{
-  display:flex;align-items:center;gap:12px;
-  padding:11px 12px;border-radius:8px;
-  cursor:pointer;font-size:13px;font-weight:600;
-  color:rgba(255,255,255,.45);
-  border:none;background:none;width:100%;text-align:left;
-  font-family:var(--sans);transition:all .2s;position:relative;
-  margin-bottom:2px;
+  display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,.4);
+  border:none;background:none;width:100%;text-align:left;font-family:var(--sans);
+  transition:all .2s;margin-bottom:2px;position:relative;
 }
 .nav-item:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.05)}
-.nav-item.active{color:#fff;background:rgba(255,255,255,.1)}
-.nav-item.active::before{content:'';position:absolute;left:0;top:20%;height:60%;width:3px;background:var(--accent);border-radius:0 2px 2px 0}
-.nav-item.done{color:var(--accent3)}
+.nav-item.active{color:#fff;background:rgba(255,255,255,.09)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;height:60%;width:3px;background:var(--red);border-radius:0 2px 2px 0}
+.nav-item.done{color:var(--green)}
 .nav-num{
-  width:28px;height:28px;border-radius:6px;
-  background:rgba(255,255,255,.08);
+  width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.07);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:11px;font-weight:700;
-  flex-shrink:0;transition:all .2s;
+  font-family:var(--mono);font-size:10px;font-weight:700;flex-shrink:0;transition:all .2s;
 }
-.nav-item.active .nav-num{background:var(--accent);color:#fff}
-.nav-item.done .nav-num{background:var(--accent3);color:#fff}
+.nav-item.active .nav-num{background:var(--red);color:#fff}
+.nav-item.done .nav-num{background:var(--green);color:#fff}
 
-.sidebar-footer{padding:20px 28px;border-top:1px solid rgba(255,255,255,.08)}
-.prog-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.3);margin-bottom:8px}
-.prog-track{height:3px;background:rgba(255,255,255,.1);border-radius:2px}
-.prog-fill{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.07)}
+.prog-lbl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.25);margin-bottom:8px}
+.prog-track{height:3px;background:rgba(255,255,255,.08);border-radius:2px}
+.prog-fill{height:3px;background:linear-gradient(90deg,var(--red),var(--blue));border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.logout-btn{
+  margin-top:14px;width:100%;height:34px;border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;background:transparent;color:rgba(255,255,255,.3);
+  font-size:11px;font-family:var(--sans);font-weight:700;cursor:pointer;
+  transition:all .2s;letter-spacing:.3px;
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
 
-/* ══ MAIN ══ */
+/* MAIN */
 .main{display:flex;flex-direction:column;min-height:100vh}
 .topbar{
-  background:rgba(245,242,236,.92);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
-  padding:0 36px;height:60px;
+  background:rgba(245,242,236,.94);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);padding:0 36px;height:58px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:40;
 }
-.topbar-left{display:flex;align-items:center;gap:16px}
-.step-chip{
-  font-family:var(--mono);font-size:10px;letter-spacing:1px;
-  background:var(--ink);color:var(--paper);
-  padding:4px 10px;border-radius:4px;text-transform:uppercase;
-}
-.topbar-title{font-size:14px;font-weight:700;color:var(--ink)}
-.topbar-right{display:flex;gap:8px}
+.topbar-l{display:flex;align-items:center;gap:14px}
+.step-chip{font-family:var(--mono);font-size:10px;letter-spacing:1px;background:var(--ink);color:var(--paper);padding:4px 10px;border-radius:4px;text-transform:uppercase}
+.topbar-title{font-size:14px;font-weight:700}
+.topbar-r{display:flex;gap:8px}
 
+/* PAGE */
 .page{padding:36px;max-width:1000px}
 .step{display:none}.step.active{display:block}
 
-/* ══ PAGE HEADER ══ */
 .ph{margin-bottom:32px;position:relative}
-.ph-num{
-  font-family:var(--mono);font-size:72px;font-weight:700;
-  color:var(--line);line-height:1;position:absolute;
-  right:0;top:-16px;pointer-events:none;letter-spacing:-4px;
-}
-.ph h2{font-size:28px;font-weight:800;letter-spacing:-.6px;line-height:1.2}
-.ph h2 em{font-style:normal;color:var(--accent)}
-.ph p{font-size:13px;color:var(--text-muted);margin-top:8px;max-width:480px}
+.ph-num{font-family:var(--mono);font-size:80px;font-weight:700;color:var(--line);line-height:1;position:absolute;right:0;top:-20px;pointer-events:none;letter-spacing:-4px}
+.ph h2{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.2}
+.ph h2 em{font-style:normal;color:var(--red)}
+.ph p{font-size:13px;color:var(--muted);margin-top:8px;max-width:480px}
 
-/* ══ CARDS ══ */
-.card{
-  background:var(--paper2);
-  border:1px solid var(--line);
-  border-radius:12px;padding:24px;
-  margin-bottom:18px;
-  position:relative;overflow:hidden;
-}
+/* CARDS */
+.card{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:16px;position:relative;overflow:hidden}
 .card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--line);border-radius:12px 12px 0 0}
-.card.accent-teal::after{background:var(--accent3)}
-.card.accent-red::after{background:var(--accent)}
-.card.accent-blue::after{background:var(--accent2)}
-.card.accent-gold::after{background:var(--accent4)}
-.card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.card-title-tag{font-family:var(--mono);font-size:9px;background:var(--ink);color:var(--paper);padding:2px 7px;border-radius:3px;letter-spacing:1px}
+.card.cr::after{background:var(--red)}.card.cb::after{background:var(--blue)}.card.cg::after{background:var(--green)}.card.co::after{background:var(--gold)}
+.ctitle{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ctag{font-family:var(--mono);font-size:9px;background:var(--ink);color:var(--paper);padding:2px 7px;border-radius:3px;letter-spacing:1px}
 
-/* ══ FORMS ══ */
-input[type=text],select{
-  height:42px;border:1.5px solid var(--line);border-radius:8px;
-  padding:0 14px;font-size:13px;font-family:var(--sans);
-  color:var(--ink);background:var(--paper);outline:none;
-  transition:border-color .2s,box-shadow .2s;font-weight:600;
-}
-input[type=text]:focus,select:focus{
-  border-color:var(--accent2);
-  box-shadow:0 0 0 3px rgba(28,107,232,.12);
-}
+/* FORMS */
+input[type=text],select{height:40px;border:1.5px solid var(--line);border-radius:8px;padding:0 13px;font-size:13px;font-family:var(--sans);color:var(--ink);background:var(--paper);outline:none;transition:border-color .2s,box-shadow .2s;font-weight:600}
+input[type=text]:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,107,232,.1)}
 input[type=text]::placeholder{color:var(--line2);font-weight:400}
 
-/* ══ BUTTONS ══ */
-.btn{
-  height:42px;padding:0 20px;border-radius:8px;
-  font-size:13px;font-family:var(--sans);cursor:pointer;
-  border:1.5px solid var(--line);background:var(--paper);
-  color:var(--ink);font-weight:700;
-  display:inline-flex;align-items:center;gap:8px;
-  transition:all .2s;white-space:nowrap;
-}
+/* BUTTONS */
+.btn{height:40px;padding:0 18px;border-radius:8px;font-size:13px;font-family:var(--sans);cursor:pointer;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font-weight:700;display:inline-flex;align-items:center;gap:7px;transition:all .2s;white-space:nowrap}
 .btn:hover{background:var(--paper3);border-color:var(--line2);transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
-.btn-dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.btn-dark:hover{background:#1a1a16;border-color:#1a1a16}
-.btn-red{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-red:hover{opacity:.88;background:var(--accent)}
-.btn-blue{background:var(--accent2);color:#fff;border-color:var(--accent2)}
-.btn-blue:hover{opacity:.88;background:var(--accent2)}
-.btn-green{background:var(--accent3);color:#fff;border-color:var(--accent3)}
-.btn-green:hover{opacity:.88;background:var(--accent3)}
-.btn-sm{height:34px;padding:0 14px;font-size:12px}
+.btn-dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}.btn-dark:hover{opacity:.85;background:var(--ink)}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red)}.btn-red:hover{opacity:.88;background:var(--red)}
+.btn-blue{background:var(--blue);color:#fff;border-color:var(--blue)}.btn-blue:hover{opacity:.88;background:var(--blue)}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green)}.btn-green:hover{opacity:.88;background:var(--green)}
+.btn-sm{height:32px;padding:0 13px;font-size:12px}
 
-/* ══ TAGS ══ */
-.tags{display:flex;flex-wrap:wrap;gap:7px;min-height:42px;align-items:center}
-.tag{
-  display:inline-flex;align-items:center;gap:7px;
-  background:var(--paper);border:1.5px solid var(--line);
-  border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;
-  transition:all .15s;
-}
-.tag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.tag-rm{cursor:pointer;color:var(--line2);font-size:14px;line-height:1;margin-left:2px;transition:color .15s}
-.tag-rm:hover{color:var(--accent)}
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:7px;min-height:40px;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:6px;background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:5px 11px;font-size:12px;font-weight:700}
+.tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.trm{cursor:pointer;color:var(--line2);font-size:14px;line-height:1;margin-left:2px;transition:color .15s}
+.trm:hover{color:var(--red)}
 
-/* ══ PRESET CARDS ══ */
+/* PRESETS */
 .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.preset{
-  border:1.5px solid var(--line);border-radius:10px;
-  padding:16px;cursor:pointer;transition:all .2s;
-  background:var(--paper);position:relative;overflow:hidden;
-}
-.preset::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line);border-radius:10px 0 0 10px}
-.preset:nth-child(1)::before{background:var(--accent)}
-.preset:nth-child(2)::before{background:var(--accent2)}
-.preset:nth-child(3)::before{background:var(--accent3)}
-.preset:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--line2)}
-.preset h4{font-size:14px;font-weight:800;margin-bottom:4px}
-.preset p{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.preset{border:1.5px solid var(--line);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;background:var(--paper);position:relative;overflow:hidden}
+.preset::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:10px 0 0 10px}
+.preset:nth-child(1)::before{background:var(--red)}.preset:nth-child(2)::before{background:var(--blue)}.preset:nth-child(3)::before{background:var(--green)}
+.preset:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.12);border-color:var(--line2)}
+.preset h4{font-size:14px;font-weight:800;margin-bottom:4px}.preset p{font-size:11px;color:var(--muted);font-family:var(--mono)}
 
-/* ══ IMPORT ══ */
-.drop{
-  border:2px dashed var(--line);border-radius:10px;padding:28px;
-  text-align:center;cursor:pointer;transition:all .2s;
-}
-.drop:hover{border-color:var(--accent2);background:rgba(28,107,232,.04)}
-.drop-ico{font-size:28px;margin-bottom:10px;opacity:.4}
+/* DROP */
+.drop{border:2px dashed var(--line);border-radius:10px;padding:26px;text-align:center;cursor:pointer;transition:all .2s}
+.drop:hover{border-color:var(--blue);background:rgba(28,107,232,.04)}
+.drop-ico{font-size:26px;margin-bottom:8px;opacity:.4}
 .drop-title{font-size:13px;font-weight:700;margin-bottom:4px}
-.drop-sub{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.drop-sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
 
-/* ══ PIECE LIST ══ */
-.plist{border:1.5px solid var(--line);border-radius:10px;overflow:hidden;max-height:320px;overflow-y:auto}
-.plist-head{display:grid;grid-template-columns:90px 1fr 32px;gap:8px;padding:9px 16px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase}
-.prow{display:grid;grid-template-columns:90px 1fr 32px;gap:8px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);transition:background .15s}
+/* PIECE LIST */
+.plist{border:1.5px solid var(--line);border-radius:10px;overflow:hidden;max-height:300px;overflow-y:auto}
+.phead{display:grid;grid-template-columns:90px 1fr 32px;gap:8px;padding:9px 16px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.prow{display:grid;grid-template-columns:90px 1fr 32px;gap:8px;align-items:center;padding:9px 16px;border-top:1px solid var(--line);transition:background .15s}
 .prow:hover{background:var(--paper3)}
 .pname{font-weight:800;font-size:13px;font-family:var(--mono)}
-.chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
-.chip{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;color:#fff;font-weight:700;font-family:var(--mono)}
-.chip-arr{color:var(--line2);font-size:10px;margin:0 1px}
+.chips{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;color:#fff;font-weight:700;font-family:var(--mono)}
+.carr{color:var(--line2);font-size:10px;margin:0 1px}
 .del{cursor:pointer;color:var(--line2);font-size:16px;text-align:center;transition:color .15s}
-.del:hover{color:var(--accent)}
-.empty{text-align:center;padding:36px;font-size:13px;color:var(--text-muted);font-family:var(--mono)}
+.del:hover{color:var(--red)}
+.empty{text-align:center;padding:32px;font-size:12px;color:var(--muted);font-family:var(--mono)}
 
-/* ══ GAMME BOX ══ */
-.gamme-box{
-  min-height:46px;border:1.5px dashed var(--line);border-radius:8px;
-  padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;
-  background:var(--paper);margin-bottom:14px;
-}
+.gbox{min-height:44px;border:1.5px dashed var(--line);border-radius:8px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--paper);margin-bottom:12px}
 
-/* ══ ALERTS ══ */
-.alert{
-  padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;
-  display:flex;align-items:flex-start;gap:10px;font-weight:600;
-  border-left:4px solid;
-}
-.alert-ok{background:rgba(24,168,107,.08);color:#0d6b44;border-color:var(--accent3)}
-.alert-warn{background:rgba(212,160,23,.08);color:#8a6000;border-color:var(--accent4)}
-.alert-info{background:rgba(28,107,232,.08);color:#1247a0;border-color:var(--accent2)}
+/* ALERTS */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-weight:600;border-left:4px solid}
+.aok{background:rgba(24,168,107,.08);color:#0d6b44;border-color:var(--green)}
+.awarn{background:rgba(212,160,23,.08);color:#8a6000;border-color:var(--gold)}
 
-/* ══ STATS ══ */
-.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:22px}
-.stat{
-  background:var(--paper);border:1.5px solid var(--line);
-  border-radius:10px;padding:18px 20px;position:relative;overflow:hidden;
-}
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
 .stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
-.stat.s-red::after{background:var(--accent)}
-.stat.s-blue::after{background:var(--accent2)}
-.stat.s-green::after{background:var(--accent3)}
-.stat.s-gold::after{background:var(--accent4)}
-.stat-val{font-size:32px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;line-height:1}
-.stat-lbl{font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.sr::after{background:var(--red)}.sb::after{background:var(--blue)}.sg::after{background:var(--green)}.so::after{background:var(--gold)}
+.sval{font-size:30px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;line-height:1}
+.slbl{font-size:11px;color:var(--muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 
-/* ══ MATRIX ══ */
-.mx-scroll{overflow:auto;border-radius:8px;border:1.5px solid var(--line)}
+/* MATRIX */
+.mxscroll{overflow:auto;border-radius:8px;border:1.5px solid var(--line)}
 table.mx{border-collapse:collapse;font-size:11px;font-family:var(--mono)}
-table.mx th,table.mx td{border:1px solid var(--line);padding:5px 8px;text-align:center;white-space:nowrap}
+table.mx th,table.mx td{border:1px solid var(--line);padding:5px 7px;text-align:center;white-space:nowrap}
 table.mx thead th{background:var(--ink);color:var(--paper);font-size:9px;letter-spacing:1px;position:sticky;top:0;z-index:2}
-table.mx .rh{position:sticky;left:0;z-index:3;background:var(--ink);color:var(--paper);text-align:left;padding-left:14px;font-size:10px}
-.cx{color:#fff;font-weight:700}
-.c0{background:var(--paper)}
+table.mx .rh{position:sticky;left:0;z-index:3;background:var(--ink);color:var(--paper);text-align:left;padding-left:12px;font-size:9px}
+.cx{color:#fff;font-weight:700}.c0{background:var(--paper)}
 
-/* ══ ILOTS ══ */
-.ilot{
-  padding:16px 18px;border-radius:10px;margin-bottom:10px;
-  border-left:4px solid;background:var(--paper);
-  display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
-}
-.ilot-num{
-  width:36px;height:36px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:14px;font-weight:700;color:#fff;
-  flex-shrink:0;
-}
-.ilot-title{font-weight:800;font-size:13px;margin-bottom:5px}
-.ilot-body{font-size:12px;color:var(--text-muted);line-height:1.8;font-family:var(--mono)}
+/* ILOTS */
+.ilot{padding:14px 16px;border-radius:10px;margin-bottom:10px;border-left:4px solid;background:var(--paper);display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.inum{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.ititle{font-weight:800;font-size:13px;margin-bottom:4px}
+.ibody{font-size:12px;color:var(--muted);line-height:1.8;font-family:var(--mono)}
 
-/* ══ CHAINONS ══ */
-.ch-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
-.ch-row:last-child{border-bottom:none}
-.ch-name{font-weight:800;font-size:13px;min-width:140px;font-family:var(--mono)}
-.ch-dirs{font-size:10px;color:var(--text-muted);min-width:80px;font-family:var(--mono)}
-.ch-bar-wrap{flex:1;background:var(--paper3);border-radius:2px;height:6px;max-width:200px}
-.ch-bar{height:6px;border-radius:2px;background:var(--accent2);transition:width .6s cubic-bezier(.4,0,.2,1)}
-.ch-val{font-weight:800;font-size:14px;min-width:30px;text-align:right;font-family:var(--mono)}
+/* CHAINONS */
+.crow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:none}
+.cname{font-weight:800;font-size:13px;min-width:130px;font-family:var(--mono)}
+.cdirs{font-size:10px;color:var(--muted);min-width:80px;font-family:var(--mono)}
+.cbwrap{flex:1;background:var(--paper3);border-radius:2px;height:5px;max-width:200px}
+.cbfill{height:5px;border-radius:2px;background:var(--blue);transition:width .7s cubic-bezier(.4,0,.2,1)}
+.cval{font-weight:800;font-size:14px;min-width:28px;text-align:right;font-family:var(--mono)}
 
-/* ══ RANK ══ */
+/* RANK */
 table.rank{width:100%;border-collapse:collapse;font-size:13px}
-table.rank th{padding:10px 14px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--paper);background:var(--ink);text-transform:uppercase}
-table.rank td{padding:11px 14px;border-bottom:1px solid var(--line);font-weight:600}
+table.rank th{padding:9px 14px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--paper);background:var(--ink);text-transform:uppercase}
+table.rank td{padding:10px 14px;border-bottom:1px solid var(--line);font-weight:600}
 table.rank tr:last-child td{border-bottom:none}
 table.rank tr:hover td{background:var(--paper3)}
-table.rank .rank-num{font-family:var(--mono);font-weight:800;color:var(--text-muted)}
 
-/* ══ CANVAS ══ */
-canvas{display:block;width:100%;border-radius:8px;border:1.5px solid var(--line)}
+/* ══ CANVAS U-SCHEMA ══ */
+.u-wrap{position:relative;border-radius:12px;overflow:hidden;border:1.5px solid var(--line);background:var(--ink)}
+#u-canvas{display:block;width:100%}
 
-/* ══ DASHBOARD ══ */
-.dash-hero{
-  background:var(--ink);color:var(--paper);
-  border-radius:12px;padding:32px;margin-bottom:22px;
-  position:relative;overflow:hidden;
-}
-.dash-hero::before{
-  content:'RÉSULTATS';position:absolute;right:-10px;top:50%;transform:translateY(-50%);
-  font-size:80px;font-weight:800;opacity:.04;letter-spacing:-3px;pointer-events:none;
-}
-.dash-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
-.dash-hero h2{font-size:24px;font-weight:800;margin-bottom:6px}
-.dash-hero p{font-size:13px;opacity:.5;font-family:var(--mono)}
-.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.rcard{border:1.5px solid var(--line);border-radius:10px;padding:20px;background:var(--paper)}
-.rcard h3{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+/* DASHBOARD */
+.dash-hero{background:var(--ink);color:var(--paper);border-radius:12px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden}
+.dash-hero::before{content:'RESULTS';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:90px;font-weight:800;opacity:.03;letter-spacing:-3px;pointer-events:none}
+.deye{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:10px}
+.dash-hero h2{font-size:22px;font-weight:800;margin-bottom:6px}
+.dash-hero p{font-size:12px;opacity:.4;font-family:var(--mono)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.rcard{border:1.5px solid var(--line);border-radius:10px;padding:18px;background:var(--paper)}
+.rcard h3{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
 
-/* ══ NAV FOOTER ══ */
-.nf{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:24px;border-top:1px solid var(--line)}
+/* NAV FOOTER */
+.nf{display:flex;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
 
-/* ══ ANIMATIONS ══ */
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.step.active>*{animation:fadeUp .35s ease both}
-.step.active>*:nth-child(2){animation-delay:.06s}
-.step.active>*:nth-child(3){animation-delay:.12s}
-.step.active>*:nth-child(4){animation-delay:.18s}
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.step.active>*{animation:fadeUp .3s ease both}
+.step.active>*:nth-child(2){animation-delay:.05s}
+.step.active>*:nth-child(3){animation-delay:.1s}
+.step.active>*:nth-child(4){animation-delay:.15s}
+
+@keyframes slideIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+#app{animation:slideIn .5s ease}
 
 @media(max-width:720px){
-  .shell{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .page{padding:20px 16px}
-  .preset-grid,.result-grid{grid-template-columns:1fr}
+  .shell{grid-template-columns:1fr}.sidebar{display:none}.page{padding:18px 14px}
+  .preset-grid,.rgrid{grid-template-columns:1fr}
+  .hero-inner{grid-template-columns:1fr}
+  .land-nav{padding:20px 24px}
+  .hero{padding:24px}
 }
 </style>
 </head>
 <body>
 
+<!-- ══════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════ -->
+<div id="landing">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+
+  <nav class="land-nav">
+    <div class="land-logo">King <span>&amp;</span> Chaînons</div>
+    <div class="land-nav-tag">Génie Industriel · v4.0</div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-eyebrow">Outil d'analyse matricielle</div>
+        <h1 class="hero-h1">
+          Méthode<br>de <em>King</em><br><span class="amp">&amp;</span> <em>Chaînons</em>
+        </h1>
+        <p class="hero-desc">
+          Optimisez l'implantation de vos îlots de fabrication grâce aux méthodes matricielles de King et des chaînons. Saisissez vos données, obtenez votre schéma en U optimal.
+        </p>
+        <div class="hero-tags">
+          <span class="htag">Matrice d'incidence</span>
+          <span class="htag">Tri binaire</span>
+          <span class="htag">Flux de production</span>
+          <span class="htag">Schéma en U</span>
+          <span class="htag">Export CSV</span>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="login-card">
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Connexion</button>
+            <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Créer un compte</button>
+          </div>
+          <div id="panel-login">
+            <div class="login-sub">// entrez vos identifiants pour continuer</div>
+            <div class="login-error" id="login-error">⚠ Identifiants incorrects. Réessayez.</div>
+            <div class="lfield">
+              <label>Nom d'utilisateur</label>
+              <input type="text" id="l-user" placeholder="ex: etudiant01" onkeydown="if(event.key==='Enter')doLogin()">
+            </div>
+            <div class="lfield">
+              <label>Mot de passe</label>
+              <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+            </div>
+            <button class="login-btn" onclick="doLogin()"><span>Connexion</span><span>→</span></button>
+            <div class="login-divider">ou</div>
+            <button class="guest-btn" onclick="doGuest()">Continuer en tant qu'invité</button>
+          </div>
+          <div id="panel-register" style="display:none">
+            <div class="login-sub">// créez votre compte gratuitement</div>
+            <div class="login-error" id="register-error">⚠ Erreur lors de l'inscription.</div>
+            <div class="login-success" id="register-success">✓ Compte créé ! Connectez-vous.</div>
+            <div class="lfield">
+              <label>Nom complet</label>
+              <input type="text" id="r-name" placeholder="ex: Ahmed Ben Ali">
+            </div>
+            <div class="lfield">
+              <label>Nom d'utilisateur</label>
+              <input type="text" id="r-user" placeholder="ex: ahmed.benali">
+            </div>
+            <div class="lfield">
+              <label>Mot de passe</label>
+              <input type="password" id="r-pass" placeholder="min. 4 caractères">
+            </div>
+            <div class="lfield">
+              <label>Confirmer le mot de passe</label>
+              <input type="password" id="r-pass2" placeholder="répétez le mot de passe" onkeydown="if(event.key==='Enter')doRegister()">
+            </div>
+            <button class="login-btn" onclick="doRegister()"><span>Créer mon compte</span><span>→</span></button>
+            <div class="login-divider">ou</div>
+            <button class="guest-btn" onclick="doGuest()">Continuer en tant qu'invité</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="land-stats">
+    <div class="lstat">
+      <div style="font-size:28px">⚙️</div>
+      <div><div class="lstat-val" style="color:var(--red)">2</div><div class="lstat-lbl">Algorithmes<br>intégrés</div></div>
+    </div>
+    <div class="lstat">
+      <div style="font-size:28px">📊</div>
+      <div><div class="lstat-val" style="color:var(--blue)">3</div><div class="lstat-lbl">Exemples<br>prédéfinis</div></div>
+    </div>
+    <div class="lstat">
+      <div style="font-size:28px">🏭</div>
+      <div><div class="lstat-val" style="color:var(--green)">∞</div><div class="lstat-lbl">Postes &amp;<br>pièces</div></div>
+    </div>
+    <div class="lstat">
+      <div style="font-size:28px">📥</div>
+      <div><div class="lstat-val" style="color:var(--gold)">CSV</div><div class="lstat-lbl">Import &amp;<br>export</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APPLICATION
+══════════════════════════════════════ -->
+<div id="app">
 <div class="shell">
 
-<!-- ══ SIDEBAR ══ -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="brand">
-    <div class="brand-eyebrow">Génie Industriel</div>
-    <div class="brand-title">King &amp;<br><span>&amp; Chaînons</span></div>
-    <div class="brand-sub">Analyse et optimisation d'îlots de fabrication par méthodes matricielles</div>
+    <div class="brand-eye">Génie Industriel</div>
+    <div class="brand-title">King <span>&amp;</span><br>Chaînons</div>
+    <div class="brand-user">
+      <div class="avatar" id="user-avatar">?</div>
+      <div><div class="user-name" id="user-name">Utilisateur</div><div class="user-role">Analyste production</div></div>
+    </div>
   </div>
   <nav class="nav">
-    <div class="nav-label">Saisie des données</div>
-    <button class="nav-item active" id="nav0" onclick="goTab(0)">
-      <span class="nav-num" id="dot0">01</span>Postes de travail
-    </button>
-    <button class="nav-item" id="nav1" onclick="goTab(1)">
-      <span class="nav-num" id="dot1">02</span>Pièces &amp; gammes
-    </button>
-    <div class="nav-label">Calculs &amp; résultats</div>
-    <button class="nav-item" id="nav2" onclick="goTab(2)">
-      <span class="nav-num" id="dot2">03</span>Matrice de King
-    </button>
-    <button class="nav-item" id="nav3" onclick="goTab(3)">
-      <span class="nav-num" id="dot3">04</span>Méthode des chaînons
-    </button>
-    <div class="nav-label">Synthèse</div>
-    <button class="nav-item" id="nav4" onclick="goTab(4)">
-      <span class="nav-num" id="dot4">05</span>Tableau de bord
-    </button>
+    <div class="nav-lbl">Saisie des données</div>
+    <button class="nav-item active" id="nav0" onclick="goTab(0)"><span class="nav-num" id="dot0">01</span>Postes de travail</button>
+    <button class="nav-item" id="nav1" onclick="goTab(1)"><span class="nav-num" id="dot1">02</span>Pièces &amp; gammes</button>
+    <div class="nav-lbl">Calculs &amp; résultats</div>
+    <button class="nav-item" id="nav2" onclick="goTab(2)"><span class="nav-num" id="dot2">03</span>Matrice de King</button>
+    <button class="nav-item" id="nav3" onclick="goTab(3)"><span class="nav-num" id="dot3">04</span>Méthode des chaînons</button>
+    <div class="nav-lbl">Synthèse</div>
+    <button class="nav-item" id="nav4" onclick="goTab(4)"><span class="nav-num" id="dot4">05</span>Tableau de bord</button>
   </nav>
   <div class="sidebar-footer">
-    <div class="prog-label">
-      <span>Progression</span>
-      <span id="prog-pct">0%</span>
-    </div>
+    <div class="prog-lbl"><span>Progression</span><span id="prog-pct">0%</span></div>
     <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <button class="logout-btn" onclick="doLogout()">← Déconnexion</button>
   </div>
 </aside>
 
-<!-- ══ MAIN ══ -->
+<!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <div class="topbar-left">
+    <div class="topbar-l">
       <span class="step-chip" id="step-chip">ÉTAPE 1/5</span>
       <span class="topbar-title" id="topbar-title">Postes de travail</span>
     </div>
-    <div class="topbar-right">
-      <button class="btn btn-sm btn-dark" onclick="exportCSV()">↓ Exporter CSV</button>
+    <div class="topbar-r">
+      <button class="btn btn-sm btn-dark" onclick="exportCSV()">↓ CSV</button>
     </div>
   </div>
 
   <div class="page">
 
-    <!-- ══ 1 POSTES ══ -->
+    <!-- 1 POSTES -->
     <div class="step active" id="step0">
-      <div class="ph">
-        <div class="ph-num">01</div>
-        <h2>Postes de <em>travail</em></h2>
-        <p>Définissez les machines de votre îlot de fabrication. Chaque poste sera un nœud dans l'analyse.</p>
-      </div>
-
-      <div class="card accent-red">
-        <div class="card-title">Ajouter un poste <span class="card-title-tag">SAISIE</span></div>
-        <div style="display:flex;gap:10px;margin-bottom:18px">
+      <div class="ph"><div class="ph-num">01</div><h2>Postes de <em>travail</em></h2><p>Définissez les machines de votre îlot de fabrication.</p></div>
+      <div class="card cr">
+        <div class="ctitle">Ajouter un poste <span class="ctag">SAISIE</span></div>
+        <div style="display:flex;gap:10px;margin-bottom:16px">
           <input type="text" id="poste-input" placeholder="Ex: TRF23" style="flex:1" onkeydown="if(event.key==='Enter')addPoste()">
           <button class="btn btn-dark" onclick="addPoste()">+ Ajouter</button>
         </div>
-        <div class="tags" id="postes-tags">
-          <span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// aucun poste défini</span>
-        </div>
+        <div class="tags" id="postes-tags"><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">// aucun poste défini</span></div>
       </div>
-
       <div class="card">
-        <div class="card-title">Jeux de données prédéfinis <span class="card-title-tag">EXEMPLES</span></div>
+        <div class="ctitle">Exemples prédéfinis <span class="ctag">DEMO</span></div>
         <div class="preset-grid">
-          <div class="preset" onclick="loadPreset('flux3')">
-            <h4>FLUX 3</h4>
-            <p>TRF23 · TRF24 · LAV · BEE<br>27 pièces · 4 postes</p>
-          </div>
-          <div class="preset" onclick="loadPreset('flux41')">
-            <h4>FLUX 4.1</h4>
-            <p>TRF38 · TRF48<br>10 pièces · 2 postes</p>
-          </div>
-          <div class="preset" onclick="loadPreset('flux1')">
-            <h4>FLUX 1</h4>
-            <p>TRF19·TRF27·LAV·PUS·BEE·TOU<br>7 pièces · 6 postes</p>
-          </div>
+          <div class="preset" onclick="loadPreset('flux3')"><h4>FLUX 3</h4><p>TRF23·TRF24·LAV·BEE<br>27 pièces · 4 postes</p></div>
+          <div class="preset" onclick="loadPreset('flux41')"><h4>FLUX 4.1</h4><p>TRF38·TRF48<br>10 pièces · 2 postes</p></div>
+          <div class="preset" onclick="loadPreset('flux1')"><h4>FLUX 1</h4><p>TRF19·TRF27·LAV·PUS·BEE·TOU<br>7 pièces · 6 postes</p></div>
         </div>
       </div>
-
       <div class="nf">
-        <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)" id="cnt-p">0 poste(s)</span>
+        <span style="font-family:var(--mono);font-size:12px;color:var(--muted)" id="cnt-p">0 poste(s)</span>
         <button class="btn btn-dark" onclick="goTab(1)">Pièces &amp; gammes →</button>
       </div>
     </div>
 
-    <!-- ══ 2 PIÈCES ══ -->
+    <!-- 2 PIÈCES -->
     <div class="step" id="step1">
-      <div class="ph">
-        <div class="ph-num">02</div>
-        <h2>Pièces &amp; <em>gammes</em></h2>
-        <p>Définissez pour chaque pièce la séquence de postes traversés lors de sa fabrication.</p>
-      </div>
-
-      <div class="card accent-blue">
-        <div class="card-title">Import CSV <span class="card-title-tag">FICHIER</span></div>
+      <div class="ph"><div class="ph-num">02</div><h2>Pièces <em>&amp;</em> gammes</h2><p>Définissez la séquence de postes pour chaque pièce.</p></div>
+      <div class="card cb">
+        <div class="ctitle">Import CSV <span class="ctag">FICHIER</span></div>
         <div class="drop" onclick="document.getElementById('csv-file').click()">
           <div class="drop-ico">⬆</div>
-          <div class="drop-title">Glissez un fichier CSV ou cliquez pour choisir</div>
+          <div class="drop-title">Cliquez pour importer un fichier CSV</div>
           <div class="drop-sub">Format : NomPiece ; Poste1 ; Poste2 ; ...</div>
           <input type="file" id="csv-file" accept=".csv,.txt" style="display:none" onchange="importCSV(event)">
         </div>
       </div>
-
-      <div class="card accent-blue">
-        <div class="card-title">Saisie manuelle <span class="card-title-tag">MANUEL</span></div>
+      <div class="card cb">
+        <div class="ctitle">Saisie manuelle <span class="ctag">MANUEL</span></div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center">
-          <input type="text" id="piece-name" placeholder="Nom pièce (ex: P01)" style="width:150px">
-          <select id="piece-poste" style="flex:1;min-width:130px"></select>
+          <input type="text" id="piece-name" placeholder="Nom pièce (ex: P01)" style="width:145px">
+          <select id="piece-poste" style="flex:1;min-width:120px"></select>
           <button class="btn" onclick="addPosteToGamme()">+ Poste</button>
           <button class="btn btn-green" onclick="addPiece()">✓ Valider</button>
         </div>
-        <div class="gamme-box" id="gamme-box">
-          <span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// gamme en cours…</span>
-        </div>
-        <div id="pieces-list" class="plist">
-          <div class="empty">// aucune pièce — importez un CSV ou saisissez</div>
-        </div>
+        <div class="gbox" id="gamme-box"><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">// gamme en cours…</span></div>
+        <div id="pieces-list" class="plist"><div class="empty">// aucune pièce saisie</div></div>
       </div>
-
       <div class="nf">
         <button class="btn" onclick="goTab(0)">← Retour</button>
         <div style="display:flex;gap:10px;align-items:center">
-          <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)" id="cnt-pc">0 pièce(s)</span>
+          <span style="font-family:var(--mono);font-size:12px;color:var(--muted)" id="cnt-pc">0 pièce(s)</span>
           <button class="btn btn-red" onclick="computeKing()">Calculer King →</button>
         </div>
       </div>
     </div>
 
-    <!-- ══ 3 KING ══ -->
+    <!-- 3 KING -->
     <div class="step" id="step2">
-      <div class="ph">
-        <div class="ph-num">03</div>
-        <h2>Matrice de <em>King</em></h2>
-        <p>Tri binaire itératif — réordonne la matrice pour faire apparaître les îlots de fabrication.</p>
-      </div>
-      <div id="king-result">
-        <div class="alert alert-warn">⚠ Lancez le calcul depuis l'étape 02.</div>
-      </div>
+      <div class="ph"><div class="ph-num">03</div><h2>Matrice de <em>King</em></h2><p>Tri binaire itératif — détection automatique des îlots de fabrication.</p></div>
+      <div id="king-result"><div class="alert awarn">⚠ Lancez le calcul depuis l'étape 02.</div></div>
       <div class="nf">
         <button class="btn" onclick="goTab(1)">← Retour</button>
         <button class="btn btn-blue" onclick="computeChainons()">Calculer Chaînons →</button>
       </div>
     </div>
 
-    <!-- ══ 4 CHAÎNONS ══ -->
+    <!-- 4 CHAÎNONS -->
     <div class="step" id="step3">
-      <div class="ph">
-        <div class="ph-num">04</div>
-        <h2>Méthode des <em>chaînons</em></h2>
-        <p>Calcul des indices de flux et optimisation de l'implantation en U par minimisation des distances.</p>
-      </div>
-      <div id="chainons-result">
-        <div class="alert alert-warn">⚠ Lancez le calcul depuis l'étape 03.</div>
-      </div>
+      <div class="ph"><div class="ph-num">04</div><h2>Méthode des <em>chaînons</em></h2><p>Indices de flux et implantation en U optimale.</p></div>
+      <div id="chainons-result"><div class="alert awarn">⚠ Lancez le calcul depuis l'étape 03.</div></div>
       <div class="nf">
         <button class="btn" onclick="goTab(2)">← Retour</button>
         <button class="btn btn-dark" onclick="goTab(4)">Tableau de bord →</button>
       </div>
     </div>
 
-    <!-- ══ 5 DASHBOARD ══ -->
+    <!-- 5 DASHBOARD -->
     <div class="step" id="step4">
-      <div class="ph">
-        <div class="ph-num">05</div>
-        <h2>Tableau de <em>bord</em></h2>
-        <p>Synthèse complète de l'analyse — King, chaînons, implantation optimale.</p>
-      </div>
-      <div id="dashboard-result">
-        <div class="alert alert-warn">⚠ Effectuez d'abord les calculs (étapes 03 et 04).</div>
-      </div>
+      <div class="ph"><div class="ph-num">05</div><h2>Tableau de <em>bord</em></h2><p>Synthèse complète de l'analyse.</p></div>
+      <div id="dashboard-result"><div class="alert awarn">⚠ Effectuez d'abord les calculs.</div></div>
       <div class="nf">
         <button class="btn" onclick="goTab(3)">← Retour</button>
         <button class="btn btn-dark" onclick="exportCSV()">↓ Télécharger CSV</button>
@@ -522,14 +632,146 @@ canvas{display:block;width:100%;border-radius:8px;border:1.5px solid var(--line)
   </div>
 </div>
 </div>
+</div>
 
 <script>
 // ════════════════════════════════════════
+// AUTH — avec localStorage
+// ════════════════════════════════════════
+
+// Charger les comptes depuis localStorage (+ comptes par défaut)
+function loadUsers(){
+  const saved = localStorage.getItem('kc_users');
+  const defaults = {admin:'admin123', demo:'demo', etudiant:'1234'};
+  if(saved){
+    try{ return Object.assign({}, defaults, JSON.parse(saved)); }
+    catch(e){ return defaults; }
+  }
+  return defaults;
+}
+function saveUsers(users){
+  // sauvegarder seulement les comptes créés par les utilisateurs (pas les defaults)
+  const defaults = {admin:'admin123', demo:'demo', etudiant:'1234'};
+  const custom = {};
+  Object.keys(users).forEach(k=>{ if(!defaults[k]) custom[k]=users[k]; });
+  localStorage.setItem('kc_users', JSON.stringify(custom));
+}
+
+// Basculer entre connexion et inscription
+function switchAuthTab(tab){
+  const isLogin = tab==='login';
+  document.getElementById('tab-login').classList.toggle('active', isLogin);
+  document.getElementById('tab-register').classList.toggle('active', !isLogin);
+  document.getElementById('panel-login').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('panel-register').style.display = isLogin ? 'none' : 'block';
+  hideAuthMessages();
+}
+function hideAuthMessages(){
+  ['login-error','register-error','register-success'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+}
+
+function showMsg(id, duration=3000){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.style.display='flex';
+  if(duration>0) setTimeout(()=>el.style.display='none', duration);
+}
+
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim().toLowerCase();
+  const p=document.getElementById('l-pass').value;
+  if(!u||!p){ showMsg('login-error'); return; }
+  const users=loadUsers();
+  if(users[u] && users[u]===p){
+    // Récupérer le nom complet si disponible
+    const names = JSON.parse(localStorage.getItem('kc_names')||'{}');
+    launch(names[u]||u);
+  } else {
+    document.getElementById('login-error').textContent='⚠ Identifiants incorrects. Réessayez.';
+    showMsg('login-error');
+    document.getElementById('l-pass').value='';
+  }
+}
+
+function doRegister(){
+  const name=document.getElementById('r-name').value.trim();
+  const u=document.getElementById('r-user').value.trim().toLowerCase();
+  const p=document.getElementById('r-pass').value;
+  const p2=document.getElementById('r-pass2').value;
+  const errEl=document.getElementById('register-error');
+  hideAuthMessages();
+
+  if(!u||!p||!p2){
+    errEl.textContent='⚠ Tous les champs sont obligatoires.';
+    showMsg('register-error'); return;
+  }
+  if(u.length<3){
+    errEl.textContent="⚠ Le nom d'utilisateur doit avoir au moins 3 caractères.";
+    showMsg('register-error'); return;
+  }
+  if(p.length<4){
+    errEl.textContent='⚠ Le mot de passe doit avoir au moins 4 caractères.';
+    showMsg('register-error'); return;
+  }
+  if(p!==p2){
+    errEl.textContent='⚠ Les mots de passe ne correspondent pas.';
+    showMsg('register-error'); return;
+  }
+  const users=loadUsers();
+  if(users[u]){
+    errEl.textContent="⚠ Ce nom d'utilisateur est déjà pris. Choisissez-en un autre.";
+    showMsg('register-error'); return;
+  }
+
+  // Créer le compte
+  users[u]=p;
+  saveUsers(users);
+  // Sauvegarder le nom complet
+  const names=JSON.parse(localStorage.getItem('kc_names')||'{}');
+  if(name) names[u]=name;
+  localStorage.setItem('kc_names', JSON.stringify(names));
+
+  // Succès → basculer vers connexion
+  showMsg('register-success', 0);
+  document.getElementById('r-name').value='';
+  document.getElementById('r-user').value='';
+  document.getElementById('r-pass').value='';
+  document.getElementById('r-pass2').value='';
+  setTimeout(()=>{
+    switchAuthTab('login');
+    document.getElementById('l-user').value=u;
+    document.getElementById('login-success') && (document.getElementById('login-success').style.display='flex');
+  }, 1800);
+}
+
+function doGuest(){launch('Invité');}
+
+function launch(username){
+  document.getElementById('landing').style.display='none';
+  document.getElementById('app').style.display='block';
+  const av=username.charAt(0).toUpperCase();
+  document.getElementById('user-avatar').textContent=av;
+  document.getElementById('user-name').textContent=username.charAt(0).toUpperCase()+username.slice(1);
+}
+
+function doLogout(){
+  document.getElementById('landing').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  hideAuthMessages();
+  postes=[];pieces=[];currentGamme=[];_king=null;_ch=null;
+  renderPostes();updateSelect();renderPieces();renderGamme();updateCounts();
+  goTab(0);
+}
+
+// ════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════
-let postes=[],pieces=[],currentGamme=[];
-let _king=null,_ch=null;
-
+let postes=[],pieces=[],currentGamme=[],_king=null,_ch=null;
 const COLORS=['#e8401c','#1c6be8','#18a86b','#d4a017','#8b2e85','#2e6b4f','#a02828','#1a5c8a','#6b4f2e','#2e4f8a'];
 const GCOLS=['#e8401c','#1c6be8','#18a86b','#d4a017','#8b2e85','#2e6b4f'];
 const TITLES=['Postes de travail','Pièces & gammes','Matrice de King','Méthode des chaînons','Tableau de bord'];
@@ -547,10 +789,7 @@ function goTab(n){
   document.getElementById('prog-pct').textContent=pct+'%';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function markDone(n){
-  document.getElementById('nav'+n).classList.add('done');
-  document.getElementById('dot'+n).textContent='✓';
-}
+function markDone(n){document.getElementById('nav'+n).classList.add('done');document.getElementById('dot'+n).textContent='✓';}
 
 // ════════════════════════════════════════
 // POSTES
@@ -558,19 +797,18 @@ function markDone(n){
 function addPoste(){
   const v=document.getElementById('poste-input').value.trim().toUpperCase();
   if(!v||postes.includes(v))return;
-  postes.push(v);
-  document.getElementById('poste-input').value='';
+  postes.push(v);document.getElementById('poste-input').value='';
   renderPostes();updateSelect();updateCounts();
 }
 function removePoste(p){postes=postes.filter(x=>x!==p);renderPostes();updateSelect();updateCounts();}
 function renderPostes(){
   const c=document.getElementById('postes-tags');
-  if(!postes.length){c.innerHTML='<span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// aucun poste défini</span>';return;}
-  c.innerHTML=postes.map((p,i)=>`<span class="tag"><span class="tag-dot" style="background:${COLORS[i%COLORS.length]}"></span>${p}<span class="tag-rm" onclick="removePoste('${p}')">&times;</span></span>`).join('');
+  if(!postes.length){c.innerHTML='<span style="font-size:12px;color:var(--muted);font-family:var(--mono)">// aucun poste défini</span>';return;}
+  c.innerHTML=postes.map((p,i)=>`<span class="tag"><span class="tdot" style="background:${COLORS[i%COLORS.length]}"></span>${p}<span class="trm" onclick="removePoste('${p}')">&times;</span></span>`).join('');
 }
 function updateSelect(){
   const s=document.getElementById('piece-poste');
-  s.innerHTML=postes.length?postes.map(p=>`<option value="${p}">${p}</option>`).join(''):'<option>— définissez d\'abord les postes —</option>';
+  s.innerHTML=postes.length?postes.map(p=>`<option value="${p}">${p}</option>`).join(''):`<option>— définissez d'abord les postes —</option>`;
 }
 function updateCounts(){
   document.getElementById('cnt-p').textContent=`${postes.length} poste(s)`;
@@ -582,16 +820,16 @@ function updateCounts(){
 // ════════════════════════════════════════
 function addPosteToGamme(){
   const p=document.getElementById('piece-poste').value;
-  if(!p||!postes.length){alert('Définissez d\'abord des postes.');return;}
+  if(!p||!postes.length){alert("Définissez d'abord des postes.");return;}
   currentGamme.push(p);renderGamme();
 }
 function removeFromGamme(i){currentGamme.splice(i,1);renderGamme();}
 function renderGamme(){
   const c=document.getElementById('gamme-box');
-  if(!currentGamme.length){c.innerHTML='<span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// gamme en cours…</span>';return;}
+  if(!currentGamme.length){c.innerHTML='<span style="font-size:12px;color:var(--muted);font-family:var(--mono)">// gamme en cours…</span>';return;}
   c.innerHTML=currentGamme.map((p,i)=>{
     const ci=postes.indexOf(p);
-    return(i>0?'<span class="chip-arr">→</span>':'')+`<span class="tag" style="border-color:${COLORS[ci%COLORS.length]}55"><span class="tag-dot" style="background:${COLORS[ci%COLORS.length]}"></span>${p}<span class="tag-rm" onclick="removeFromGamme(${i})">&times;</span></span>`;
+    return(i>0?'<span class="carr">→</span>':'')+`<span class="tag" style="border-color:${COLORS[ci%COLORS.length]}55"><span class="tdot" style="background:${COLORS[ci%COLORS.length]}"></span>${p}<span class="trm" onclick="removeFromGamme(${i})">&times;</span></span>`;
   }).join('');
 }
 function addPiece(){
@@ -604,13 +842,9 @@ function addPiece(){
 function removePiece(i){pieces.splice(i,1);renderPieces();updateCounts();}
 function renderPieces(){
   const c=document.getElementById('pieces-list');
-  if(!pieces.length){c.innerHTML='<div class="empty">// aucune pièce</div>';return;}
-  c.innerHTML=`<div class="plist-head"><span>Pièce</span><span>Gamme opératoire</span><span></span></div>`
-    +pieces.map((p,i)=>`<div class="prow">
-      <span class="pname">${p.name}</span>
-      <span class="chips">${p.gamme.map((m,mi)=>{const ci=postes.indexOf(m);return(mi>0?'<span class="chip-arr">→</span>':'')+`<span class="chip" style="background:${COLORS[ci%COLORS.length]}">${m}</span>`;}).join('')}</span>
-      <span class="del" onclick="removePiece(${i})">&times;</span>
-    </div>`).join('');
+  if(!pieces.length){c.innerHTML='<div class="empty">// aucune pièce saisie</div>';return;}
+  c.innerHTML=`<div class="phead"><span>Pièce</span><span>Gamme opératoire</span><span></span></div>`
+    +pieces.map((p,i)=>`<div class="prow"><span class="pname">${p.name}</span><span class="chips">${p.gamme.map((m,mi)=>{const ci=postes.indexOf(m);return(mi>0?'<span class="carr">→</span>':'')+`<span class="chip" style="background:${COLORS[ci%COLORS.length]}">${m}</span>`;}).join('')}</span><span class="del" onclick="removePiece(${i})">&times;</span></div>`).join('');
 }
 function importCSV(e){
   const f=e.target.files[0];if(!f)return;
@@ -652,7 +886,7 @@ function loadPreset(id){
 }
 
 // ════════════════════════════════════════
-// ALGO KING
+// KING
 // ════════════════════════════════════════
 function buildMatrix(){return postes.map(p=>pieces.map(pc=>pc.gamme.includes(p)?1:0));}
 function kingAlgo(mat0,mn0,pn0){
@@ -683,52 +917,42 @@ function detectGroups(mat){
   }
   return groups;
 }
-
 function computeKing(){
-  if(!postes.length||!pieces.length){alert('Ajoutez des postes et des pièces avant de calculer.');return;}
+  if(!postes.length||!pieces.length){alert('Ajoutez des postes et des pièces.');return;}
   const mat0=buildMatrix();
   const{mat,mn,pn}=kingAlgo(mat0,postes,pieces.map(p=>p.name));
   const groups=detectGroups(mat);
-  _king={mat,mn,pn,groups};
-  markDone(0);markDone(1);
+  _king={mat,mn,pn,groups};markDone(0);markDone(1);
 
   let html=`<div class="stat-row">
-    <div class="stat s-red"><div class="stat-val">${postes.length}</div><div class="stat-lbl">Postes / machines</div></div>
-    <div class="stat s-blue"><div class="stat-val">${pieces.length}</div><div class="stat-lbl">Pièces analysées</div></div>
-    <div class="stat s-green"><div class="stat-val">${groups.length}</div><div class="stat-lbl">Îlots détectés</div></div>
+    <div class="stat sr"><div class="sval">${postes.length}</div><div class="slbl">Postes</div></div>
+    <div class="stat sb"><div class="sval">${pieces.length}</div><div class="slbl">Pièces</div></div>
+    <div class="stat sg"><div class="sval">${groups.length}</div><div class="slbl">Îlots détectés</div></div>
   </div>
-  <div class="alert alert-ok">✓ Matrice réordonnée — <strong>${groups.length} îlot(s)</strong> identifié(s) par tri binaire (12 itérations).</div>`;
+  <div class="alert aok">✓ Matrice réordonnée — <strong>${groups.length} îlot(s)</strong> identifié(s) par tri binaire (12 itérations).</div>`;
 
-  // MATRIX
-  html+=`<div class="card accent-teal"><div class="card-title">Matrice d'incidence réordonnée <span class="card-title-tag">KING</span></div><div class="mx-scroll"><table class="mx"><thead><tr><th class="rh">M \\ P</th>`;
-  pn.forEach((p,j)=>{const gi=groups.findIndex(g=>j>=g.cS&&j<=g.cE);const col=gi>=0?GCOLS[gi%GCOLS.length]:'';html+=`<th style="${col?'color:'+col:''}">${p}</th>`;});
+  html+=`<div class="card cg"><div class="ctitle">Matrice d'incidence réordonnée <span class="ctag">KING</span></div><div class="mxscroll"><table class="mx"><thead><tr><th class="rh">M \\ P</th>`;
+  pn.forEach((p,j)=>{const gi=groups.findIndex(g=>j>=g.cS&&j<=g.cE);html+=`<th style="${gi>=0?'color:'+GCOLS[gi%GCOLS.length]:''}">${p}</th>`;});
   html+=`</tr></thead><tbody>`;
   mn.forEach((m,i)=>{
-    const mi=postes.indexOf(m),col=COLORS[mi%COLORS.length];
-    html+=`<tr><th class="rh"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${m}</th>`;
+    const col=COLORS[postes.indexOf(m)%COLORS.length];
+    html+=`<tr><th class="rh"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${m}</th>`;
     mat[i].forEach((v,j)=>{const gi=groups.findIndex(g=>j>=g.cS&&j<=g.cE);const gc=gi>=0?GCOLS[gi%GCOLS.length]:'#18a86b';html+=v?`<td class="cx" style="background:${gc}cc">1</td>`:`<td class="c0"></td>`;});
     html+=`</tr>`;
   });
   html+=`</tbody></table></div></div>`;
 
-  // ILOTS
-  html+=`<div class="card accent-teal"><div class="card-title">Îlots identifiés <span class="card-title-tag">RÉSULTATS</span></div>`;
+  html+=`<div class="card cg"><div class="ctitle">Îlots identifiés <span class="ctag">RÉSULTATS</span></div>`;
   groups.forEach((g,gi)=>{
     const machines=g.rows.map(r=>mn[r]),pl=pn.slice(g.cS,g.cE+1),col=GCOLS[gi%GCOLS.length];
-    html+=`<div class="ilot" style="border-left-color:${col}">
-      <div class="ilot-num" style="background:${col}">I${gi+1}</div>
-      <div><div class="ilot-title" style="color:${col}">Îlot ${gi+1} — ${machines.join(' · ')}</div>
-      <div class="ilot-body"><strong>Machines :</strong> ${machines.join(', ')}<br><strong>Pièces (${pl.length}) :</strong> ${pl.join(', ')}</div></div>
-    </div>`;
+    html+=`<div class="ilot" style="border-left-color:${col}"><div class="inum" style="background:${col}">I${gi+1}</div><div><div class="ititle" style="color:${col}">Îlot ${gi+1} — ${machines.join(' · ')}</div><div class="ibody"><strong>Machines :</strong> ${machines.join(', ')}<br><strong>Pièces (${pl.length}) :</strong> ${pl.join(', ')}</div></div></div>`;
   });
   html+=`</div>`;
-
-  document.getElementById('king-result').innerHTML=html;
-  goTab(2);
+  document.getElementById('king-result').innerHTML=html;goTab(2);
 }
 
 // ════════════════════════════════════════
-// ALGO CHAÎNONS
+// CHAÎNONS
 // ════════════════════════════════════════
 function buildChain(){
   const n=postes.length,tbl=Array.from({length:n},()=>Array(n).fill(0));
@@ -744,9 +968,16 @@ function optimise(sym){
   const n=postes.length;if(!n)return{ordre:[],score:0};
   const perms=arr=>{if(arr.length<=1)return[arr];const r=[];arr.forEach((x,i)=>perms([...arr.slice(0,i),...arr.slice(i+1)]).forEach(p=>r.push([x,...p])));return r;};
   const idxs=[...Array(n).keys()];
-  const all=n<=7?perms(idxs):[idxs];
   let best=Infinity,bestO=postes;
-  all.forEach(perm=>{let s=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=sym[perm[i]][perm[j]]*Math.abs(i-j);if(s<best){best=s;bestO=perm.map(i=>postes[i]);}});
+  if(n<=7){
+    perms(idxs).forEach(perm=>{let s=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=sym[perm[i]][perm[j]]*Math.abs(i-j);if(s<best){best=s;bestO=perm.map(i=>postes[i]);}});
+  }else{
+    for(let t=0;t<20;t++){
+      const perm=[...idxs].sort(()=>Math.random()-.5);
+      let s=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=sym[perm[i]][perm[j]]*Math.abs(i-j);
+      if(s<best){best=s;bestO=perm.map(i=>postes[i]);}
+    }
+  }
   return{ordre:bestO,score:best};
 }
 
@@ -755,8 +986,7 @@ function computeChainons(){
   const tbl=buildChain(),sym=buildSym(tbl);
   const nbC={};postes.forEach((p,i)=>{nbC[p]=postes.reduce((s,_,j)=>j!==i?s+sym[i][j]:s,0);});
   const{ordre,score}=optimise(sym);
-  _ch={tbl,sym,nbC,ordre,score};
-  markDone(2);
+  _ch={tbl,sym,nbC,ordre,score};markDone(2);
 
   const maxF=Math.max(1,...postes.flatMap((_,i)=>postes.map((_,j)=>j>i?sym[i][j]:0)).filter(v=>v>0));
   const chainList=[];
@@ -764,96 +994,233 @@ function computeChainons(){
   chainList.sort((x,y)=>y.flux-x.flux);
 
   let html=`<div class="stat-row">
-    ${ordre.map((p,k)=>`<div class="stat" style="border-bottom:3px solid ${COLORS[postes.indexOf(p)%COLORS.length]}"><div class="stat-val" style="color:${COLORS[postes.indexOf(p)%COLORS.length]}">${nbC[p]}</div><div class="stat-lbl">${p} — rang #${k+1}</div></div>`).join('')}
+    ${ordre.map((p,k)=>`<div class="stat" style="border-bottom:3px solid ${COLORS[postes.indexOf(p)%COLORS.length]}"><div class="sval" style="color:${COLORS[postes.indexOf(p)%COLORS.length]}">${nbC[p]}</div><div class="slbl">${p} #${k+1}</div></div>`).join('')}
   </div>`;
 
-  html+=`<div class="card accent-blue"><div class="card-title">Table des chaînons <span class="card-title-tag">FLUX</span></div>`;
-  chainList.forEach(c=>{html+=`<div class="ch-row"><span class="ch-name">${c.a} ↔ ${c.b}</span><span class="ch-dirs">${c.ab}→ / ${c.ba}←</span><div class="ch-bar-wrap"><div class="ch-bar" style="width:${Math.round(c.flux/maxF*200)}px"></div></div><span class="ch-val">${c.flux}</span></div>`;});
+  html+=`<div class="card cb"><div class="ctitle">Table des chaînons <span class="ctag">FLUX</span></div>`;
+  chainList.forEach(c=>{html+=`<div class="crow"><span class="cname">${c.a} ↔ ${c.b}</span><span class="cdirs">${c.ab}→ / ${c.ba}←</span><div class="cbwrap"><div class="cbfill" style="width:${Math.round(c.flux/maxF*200)}px"></div></div><span class="cval">${c.flux}</span></div>`;});
   html+=`</div>`;
 
-  html+=`<div class="card accent-blue"><div class="card-title">Classement des postes <span class="card-title-tag">RANG</span></div><table class="rank"><thead><tr><th>Rang</th><th>Poste</th><th>Chaînons</th><th>Statut</th></tr></thead><tbody>`;
-  ordre.forEach((p,k)=>{html+=`<tr><td class="rank-num">#${k+1}</td><td><span class="chip" style="background:${COLORS[postes.indexOf(p)%COLORS.length]}">${p}</span></td><td style="font-weight:800;font-family:var(--mono)">${nbC[p]}</td><td style="font-size:11px;color:var(--text-muted)">${k===0?'Poste central':k===ordre.length-1?'Poste périphérique':''}</td></tr>`;});
+  html+=`<div class="card cb"><div class="ctitle">Classement <span class="ctag">RANG</span></div><table class="rank"><thead><tr><th>Rang</th><th>Poste</th><th>Chaînons</th><th>Statut</th></tr></thead><tbody>`;
+  ordre.forEach((p,k)=>{html+=`<tr><td style="font-family:var(--mono);font-weight:800">#${k+1}</td><td><span class="chip" style="background:${COLORS[postes.indexOf(p)%COLORS.length]}">${p}</span></td><td style="font-family:var(--mono);font-weight:800">${nbC[p]}</td><td style="font-size:11px;color:var(--muted)">${k===0?'Poste central':k===ordre.length-1?'Poste périphérique':''}</td></tr>`;});
   html+=`</tbody></table></div>`;
 
-  html+=`<div class="card accent-blue"><div class="card-title">Implantation optimale — Schéma en U <span class="card-title-tag">LAYOUT</span></div><p style="font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-bottom:16px">Ordre : ${ordre.join(' → ')} &nbsp;|&nbsp; Score : ${score}</p><canvas id="u-canvas" height="300"></canvas></div>`;
+  html+=`<div class="card cb"><div class="ctitle">Implantation optimale — Schéma en U animé <span class="ctag">LAYOUT</span></div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:16px">Ordre : ${ordre.join(' → ')} &nbsp;|&nbsp; Score : ${score}</p>
+    <div class="u-wrap"><canvas id="u-canvas" height="340"></canvas></div>
+  </div>`;
 
   document.getElementById('chainons-result').innerHTML=html;
-  markDone(3);
-  goTab(3);
-  setTimeout(()=>{drawU(ordre,sym,nbC);buildDashboard();},80);
+  markDone(3);goTab(3);
+  setTimeout(()=>{animateU(ordre,sym,nbC);buildDashboard();},80);
 }
 
 // ════════════════════════════════════════
-// SCHÉMA EN U
+// SCHÉMA EN U — ANIMÉ
 // ════════════════════════════════════════
-function drawU(ordre,sym,nbC){
+let _animFrame=null;
+function animateU(ordre,sym,nbC){
   const canvas=document.getElementById('u-canvas');
   if(!canvas)return;
-  const W=canvas.offsetWidth||860,H=300;
+  if(_animFrame)cancelAnimationFrame(_animFrame);
+
+  const W=canvas.offsetWidth||860,H=340;
   canvas.width=W*devicePixelRatio;canvas.height=H*devicePixelRatio;
   canvas.style.width=W+'px';canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
 
-  // background grid
-  ctx.fillStyle='#f5f2ec';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='#c8c3b5';ctx.lineWidth=.5;
-  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-
   const n=ordre.length,top=Math.ceil(n/2),bot=n-top;
   const maxC=Math.max(top,bot);
-  const bw=Math.min(110,Math.floor((W-60)/maxC)-12);
-  const bh=58,gap=Math.min(28,(W-40-maxC*bw)/Math.max(1,maxC-1));
+  const bw=Math.min(112,Math.floor((W-60)/maxC)-10);
+  const bh=60,gap=Math.min(30,(W-40-maxC*bw)/Math.max(1,maxC-1));
   const startX=(W-(maxC*bw+(maxC-1)*gap))/2+bw/2;
   const pos={};
-  for(let i=0;i<top;i++)pos[ordre[i]]={x:startX+i*(bw+gap),y:62+bh/2};
-  for(let i=0;i<bot;i++)pos[ordre[top+i]]={x:startX+(bot-1-i)*(bw+gap),y:208+bh/2};
+  for(let i=0;i<top;i++)pos[ordre[i]]={x:startX+i*(bw+gap),y:72+bh/2};
+  for(let i=0;i<bot;i++)pos[ordre[top+i]]={x:startX+(bot-1-i)*(bw+gap),y:232+bh/2};
 
   const gF=(a,b)=>{const i=postes.indexOf(a),j=postes.indexOf(b);if(i<0||j<0)return 0;return sym[Math.min(i,j)][Math.max(i,j)];};
   const maxF=Math.max(1,...ordre.flatMap((a,ai)=>ordre.slice(ai+1).map(b=>gF(a,b))));
 
-  // connexions
+  // Particules de flux
+  const particles=[];
   for(let k=0;k<n-1;k++){
-    const a=ordre[k],b=ordre[k+1],pa=pos[a],pb=pos[b],fv=gF(a,b);
-    const lw=1.5+(fv/maxF)*4.5;
-    ctx.beginPath();
-    if(Math.abs(pa.y-pb.y)>80){ctx.moveTo(pa.x,pa.y);ctx.bezierCurveTo(pa.x,pa.y+65,pb.x,pb.y-65,pb.x,pb.y);}
-    else{ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);}
-    ctx.strokeStyle='#1c6be8';ctx.lineWidth=lw;ctx.globalAlpha=0.35+(fv/maxF)*0.55;ctx.stroke();ctx.globalAlpha=1;
-    const mx=(pa.x+pb.x)/2,my=Math.abs(pa.y-pb.y)>80?(pa.y+pb.y)/2:pa.y-18;
-    ctx.fillStyle='#1c6be8';ctx.font='700 11px Space Mono,monospace';ctx.textAlign='center';ctx.fillText(fv,mx,my);
+    const a=ordre[k],b=ordre[k+1],fv=gF(a,b);
+    const count=Math.max(1,Math.round(fv/maxF*6));
+    for(let p=0;p<count;p++){
+      particles.push({
+        segA:a,segB:b,t:Math.random(),
+        speed:0.004+Math.random()*0.004,
+        size:2+fv/maxF*3,
+        color:COLORS[(postes.indexOf(a))%COLORS.length],
+        alpha:0.6+Math.random()*0.4
+      });
+    }
   }
 
-  // boxes
-  ordre.forEach((p,k)=>{
-    const{x,y}=pos[p],ci=COLORS[postes.indexOf(p)%COLORS.length];
-    const bx=x-bw/2,by=y-bh/2;
-    ctx.fillStyle='rgba(0,0,0,0.1)';rr(ctx,bx+2,by+4,bw,bh,8);ctx.fill();
-    ctx.fillStyle=ci;rr(ctx,bx,by,bw,bh,8);ctx.fill();
-    // accent line top
-    ctx.fillStyle='rgba(255,255,255,0.3)';
-    ctx.fillRect(bx+8,by,bw-16,3);
-    ctx.fillStyle='#fff';ctx.font='700 13px Syne,sans-serif';ctx.textAlign='center';ctx.fillText(p,x,y+3);
-    ctx.font='400 10px Space Mono,monospace';ctx.fillStyle='rgba(255,255,255,.65)';
-    ctx.fillText(`C=${nbC[p]}`,x,y+16);
-    ctx.fillText(`#${k+1}`,x,y+27);
-  });
+  // Progress d'apparition des boîtes
+  const boxProgress={};ordre.forEach((p,k)=>{boxProgress[p]=0;});
+  let startTime=null;
+  const APPEAR_DURATION=1200; // ms
 
-  // labels
-  if(n>=2){
-    const pe=pos[ordre[0]],ps=pos[ordre[n-1]];
-    ctx.font='700 10px Space Mono,monospace';ctx.textAlign='center';
-    ctx.fillStyle='#18a86b';ctx.fillText('▼ ENTRÉE',pe.x,pe.y-bh/2-10);
-    ctx.fillStyle='#e8401c';ctx.fillText('▼ SORTIE',ps.x,ps.y-bh/2-10);
+  function getPathPoint(a,b,t){
+    const pa=pos[a],pb=pos[b];
+    if(Math.abs(pa.y-pb.y)>80){
+      // courbe de Bézier
+      const cx1=pa.x,cy1=pa.y+70,cx2=pb.x,cy2=pb.y-70;
+      const u=1-t;
+      return{
+        x:u*u*u*pa.x+3*u*u*t*cx1+3*u*t*t*cx2+t*t*t*pb.x,
+        y:u*u*u*pa.y+3*u*u*t*cy1+3*u*t*t*cy2+t*t*t*pb.y
+      };
+    }
+    return{x:pa.x+(pb.x-pa.x)*t,y:pa.y+(pb.y-pa.y)*t};
   }
 
-  // flux arrow
-  const ay=H-14;
-  ctx.beginPath();ctx.moveTo(30,ay);ctx.lineTo(W-34,ay);
-  ctx.strokeStyle='#18a86b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#18a86b';ctx.beginPath();ctx.moveTo(W-30,ay);ctx.lineTo(W-40,ay-5);ctx.lineTo(W-40,ay+5);ctx.closePath();ctx.fill();
-  ctx.font='600 11px Syne,sans-serif';ctx.textAlign='center';ctx.fillStyle='#18a86b';ctx.fillText('Flux de production',W/2,ay-6);
+  function draw(ts){
+    if(!startTime)startTime=ts;
+    const elapsed=ts-startTime;
+    const globalProg=Math.min(1,elapsed/APPEAR_DURATION);
+
+    ctx.clearRect(0,0,W,H);
+
+    // fond dark avec grille
+    ctx.fillStyle='#0a0a08';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+    for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    // connexions (s'affichent progressivement)
+    for(let k=0;k<n-1;k++){
+      const a=ordre[k],b=ordre[k+1],pa=pos[a],pb=pos[b];
+      const fv=gF(a,b);
+      const lw=1+(fv/maxF)*4;
+      const segProg=Math.min(1,globalProg*2);
+
+      ctx.beginPath();
+      if(Math.abs(pa.y-pb.y)>80){
+        const steps=40;
+        ctx.moveTo(pa.x,pa.y);
+        for(let s=1;s<=Math.round(steps*segProg);s++){
+          const pt=getPathPoint(a,b,s/steps);
+          ctx.lineTo(pt.x,pt.y);
+        }
+      }else{
+        ctx.moveTo(pa.x,pa.y);
+        ctx.lineTo(pa.x+(pb.x-pa.x)*segProg,pa.y+(pb.y-pa.y)*segProg);
+      }
+      ctx.strokeStyle=COLORS[postes.indexOf(a)%COLORS.length];
+      ctx.lineWidth=lw;ctx.globalAlpha=0.25+(fv/maxF)*0.35;ctx.stroke();ctx.globalAlpha=1;
+
+      // label flux
+      if(segProg>0.8){
+        const mp=getPathPoint(a,b,.5);
+        const offset=Math.abs(pa.y-pb.y)>80?0:-18;
+        ctx.fillStyle='rgba(255,255,255,0.7)';
+        ctx.font='700 11px Space Mono,monospace';ctx.textAlign='center';
+        ctx.globalAlpha=segProg;
+        ctx.fillText(fv,mp.x,mp.y+offset);
+        ctx.globalAlpha=1;
+      }
+    }
+
+    // particules de flux animées
+    if(globalProg>0.5){
+      const pAlpha=(globalProg-0.5)*2;
+      particles.forEach(p=>{
+        p.t=(p.t+p.speed)%1;
+        const pt=getPathPoint(p.segA,p.segB,p.t);
+        ctx.beginPath();
+        ctx.arc(pt.x,pt.y,p.size,0,Math.PI*2);
+        ctx.fillStyle=p.color;
+        ctx.globalAlpha=p.alpha*pAlpha;
+        ctx.fill();
+        ctx.globalAlpha=1;
+        // halo
+        ctx.beginPath();
+        ctx.arc(pt.x,pt.y,p.size*2.5,0,Math.PI*2);
+        const grad=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,p.size*2.5);
+        grad.addColorStop(0,p.color+'88');
+        grad.addColorStop(1,'transparent');
+        ctx.fillStyle=grad;
+        ctx.globalAlpha=p.alpha*pAlpha*0.4;
+        ctx.fill();
+        ctx.globalAlpha=1;
+      });
+    }
+
+    // boîtes (apparaissent avec délai en cascade)
+    ordre.forEach((p,k)=>{
+      const delay=k/(n*1.5);
+      const prog=Math.max(0,Math.min(1,(globalProg-delay)/(1-delay+0.01)));
+      if(prog<=0)return;
+
+      const{x,y}=pos[p],ci=COLORS[postes.indexOf(p)%COLORS.length];
+      const bx=x-bw/2,by=y-bh/2;
+      const scale=0.5+prog*0.5;
+      const alpha=prog;
+
+      ctx.save();
+      ctx.translate(x,y);ctx.scale(scale,scale);ctx.translate(-x,-y);
+      ctx.globalAlpha=alpha;
+
+      // shadow glow
+      ctx.shadowColor=ci;ctx.shadowBlur=20*prog;
+
+      // box fond
+      ctx.fillStyle='#1a1a14';rr(ctx,bx,by,bw,bh,10);ctx.fill();
+      ctx.shadowBlur=0;
+
+      // bord coloré
+      ctx.strokeStyle=ci;ctx.lineWidth=2;rr(ctx,bx,by,bw,bh,10);ctx.stroke();
+
+      // accent top
+      ctx.fillStyle=ci;rr(ctx,bx,by,bw,5,10);ctx.fill();
+
+      // text
+      ctx.fillStyle='#ffffff';ctx.font='700 13px Syne,sans-serif';ctx.textAlign='center';
+      ctx.fillText(p,x,y+4);
+      ctx.font='400 10px Space Mono,monospace';ctx.fillStyle='rgba(255,255,255,.5)';
+      ctx.fillText(`C=${nbC[p]}`,x,y+18);
+      ctx.fillStyle=ci;
+      ctx.fillText(`#${k+1}`,x,y+30);
+
+      ctx.restore();ctx.globalAlpha=1;
+    });
+
+    // labels ENTRÉE / SORTIE (pulsent)
+    if(globalProg>0.8&&n>=2){
+      const pulse=0.7+0.3*Math.sin(ts/400);
+      const pe=pos[ordre[0]],ps=pos[ordre[n-1]];
+      ctx.font='700 10px Space Mono,monospace';ctx.textAlign='center';
+      ctx.globalAlpha=pulse*(globalProg-0.8)*5;
+      ctx.fillStyle='#18a86b';ctx.fillText('▼ ENTRÉE',pe.x,pe.y-bh/2-12);
+      ctx.fillStyle='#e8401c';ctx.fillText('▼ SORTIE',ps.x,ps.y-bh/2-12);
+      ctx.globalAlpha=1;
+    }
+
+    // flèche flux en bas
+    if(globalProg>0.7){
+      const fa=(globalProg-0.7)*3.33;
+      const ay=H-18,fw=(W-60)*fa;
+      ctx.beginPath();ctx.moveTo(30,ay);ctx.lineTo(30+fw,ay);
+      ctx.strokeStyle='#18a86b';ctx.lineWidth=1.5;
+      ctx.setLineDash([6,4]);ctx.globalAlpha=fa;ctx.stroke();
+      ctx.setLineDash([]);ctx.globalAlpha=1;
+      if(fa>0.8){
+        ctx.fillStyle='#18a86b';
+        ctx.beginPath();ctx.moveTo(30+fw,ay);ctx.lineTo(30+fw-10,ay-5);ctx.lineTo(30+fw-10,ay+5);ctx.closePath();ctx.fill();
+        ctx.font='600 11px Syne,sans-serif';ctx.textAlign='center';
+        ctx.fillStyle='rgba(24,168,107,0.7)';
+        ctx.fillText('Flux de production',W/2,ay-7);
+      }
+    }
+
+    _animFrame=requestAnimationFrame(draw);
+  }
+
+  _animFrame=requestAnimationFrame(draw);
 }
+
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
 // ════════════════════════════════════════
@@ -862,8 +1229,7 @@ function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y)
 function buildDashboard(){
   if(!_king||!_ch)return;
   const{groups,mn,pn}=_king;
-  const{ordre,nbC,score,sym}=_ch;
-  markDone(4);
+  const{ordre,nbC,score,sym}=_ch;markDone(4);
 
   const chainList=[];
   postes.forEach((p,i)=>postes.forEach((q,j)=>{if(j>i&&sym[i][j]>0)chainList.push({a:p,b:q,flux:sym[i][j]});}));
@@ -871,57 +1237,50 @@ function buildDashboard(){
   const topPoste=ordre[0],topChain=chainList[0]||null;
 
   let html=`<div class="dash-hero">
-    <div class="dash-eyebrow">Analyse complète</div>
+    <div class="deye">Analyse complète</div>
     <h2>Résultats King &amp; Chaînons</h2>
     <p>${postes.length} postes · ${pieces.length} pièces · ${groups.length} îlot(s) · Score ${score}</p>
   </div>`;
 
   html+=`<div class="stat-row">
-    <div class="stat s-red"><div class="stat-val">${postes.length}</div><div class="stat-lbl">Postes</div></div>
-    <div class="stat s-blue"><div class="stat-val">${pieces.length}</div><div class="stat-lbl">Pièces</div></div>
-    <div class="stat s-green"><div class="stat-val">${groups.length}</div><div class="stat-lbl">Îlots</div></div>
-    <div class="stat s-gold"><div class="stat-val">${score}</div><div class="stat-lbl">Score d'impl.</div></div>
+    <div class="stat sr"><div class="sval">${postes.length}</div><div class="slbl">Postes</div></div>
+    <div class="stat sb"><div class="sval">${pieces.length}</div><div class="slbl">Pièces</div></div>
+    <div class="stat sg"><div class="sval">${groups.length}</div><div class="slbl">Îlots</div></div>
+    <div class="stat so"><div class="sval">${score}</div><div class="slbl">Score impl.</div></div>
   </div>`;
 
-  html+=`<div class="result-grid">
-    <div class="rcard">
-      <h3>Ordre d'implantation optimal</h3>
+  html+=`<div class="rgrid">
+    <div class="rcard"><h3>Ordre d'implantation optimal</h3>
       ${ordre.map((p,k)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--text-muted);min-width:22px">#${k+1}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--muted);min-width:22px">#${k+1}</span>
         <span class="chip" style="background:${COLORS[postes.indexOf(p)%COLORS.length]}">${p}</span>
-        <div style="flex:1;height:4px;background:var(--paper3);border-radius:2px">
-          <div style="width:${Math.round(nbC[p]/Math.max(1,...Object.values(nbC))*100)}%;height:4px;background:${COLORS[postes.indexOf(p)%COLORS.length]};border-radius:2px"></div>
-        </div>
-        <span style="font-family:var(--mono);font-size:12px;font-weight:700;min-width:24px;text-align:right">${nbC[p]}</span>
+        <div style="flex:1;height:3px;background:var(--paper3);border-radius:2px"><div style="width:${Math.round(nbC[p]/Math.max(1,...Object.values(nbC))*100)}%;height:3px;background:${COLORS[postes.indexOf(p)%COLORS.length]};border-radius:2px"></div></div>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;min-width:20px;text-align:right">${nbC[p]}</span>
       </div>`).join('')}
     </div>
-    <div class="rcard">
-      <h3>Îlots de fabrication</h3>
-      ${groups.map((g,gi)=>{
-        const machines=g.rows.map(r=>mn[r]),pl=pn.slice(g.cS,g.cE+1),col=GCOLS[gi%GCOLS.length];
+    <div class="rcard"><h3>Îlots de fabrication</h3>
+      ${groups.map((g,gi)=>{const machines=g.rows.map(r=>mn[r]),pl=pn.slice(g.cS,g.cE+1),col=GCOLS[gi%GCOLS.length];
         return`<div style="padding:10px 12px;border-radius:6px;margin-bottom:8px;border-left:3px solid ${col};background:var(--paper3)">
           <div style="font-weight:800;font-size:12px;color:${col};margin-bottom:3px;font-family:var(--mono)">ÎLOT ${gi+1}</div>
-          <div style="font-size:12px;color:var(--text-muted)">${machines.join(' · ')} <span style="opacity:.6">(${pl.length} pièces)</span></div>
-        </div>`;
-      }).join('')}
+          <div style="font-size:12px;color:var(--muted)">${machines.join(' · ')} <span style="opacity:.6">(${pl.length} pièces)</span></div>
+        </div>`;}).join('')}
     </div>
   </div>`;
 
-  html+=`<div class="card"><div class="card-title">Points clés <span class="card-title-tag">KPI</span></div>
+  html+=`<div class="card"><div class="ctitle">Points clés <span class="ctag">KPI</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="padding:16px;background:rgba(24,168,107,.07);border-radius:8px;border-left:4px solid var(--accent3)">
-        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--accent3);margin-bottom:8px;text-transform:uppercase">Poste central</div>
-        <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:var(--accent3)">${topPoste}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${nbC[topPoste]} chaînons — le plus connecté</div>
+      <div style="padding:16px;background:rgba(24,168,107,.07);border-radius:8px;border-left:4px solid var(--green)">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--green);margin-bottom:8px;text-transform:uppercase">Poste central</div>
+        <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:var(--green)">${topPoste}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${nbC[topPoste]} chaînons — le plus connecté</div>
       </div>
-      ${topChain?`<div style="padding:16px;background:rgba(28,107,232,.07);border-radius:8px;border-left:4px solid var(--accent2)">
-        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--accent2);margin-bottom:8px;text-transform:uppercase">Flux dominant</div>
-        <div style="font-size:18px;font-weight:800;font-family:var(--mono);color:var(--accent2)">${topChain.a} ↔ ${topChain.b}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${topChain.flux} liaisons — lien le plus fort</div>
+      ${topChain?`<div style="padding:16px;background:rgba(28,107,232,.07);border-radius:8px;border-left:4px solid var(--blue)">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--blue);margin-bottom:8px;text-transform:uppercase">Flux dominant</div>
+        <div style="font-size:18px;font-weight:800;font-family:var(--mono);color:var(--blue)">${topChain.a} ↔ ${topChain.b}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${topChain.flux} liaisons — lien le plus fort</div>
       </div>`:''}
     </div>
   </div>`;
-
   document.getElementById('dashboard-result').innerHTML=html;
 }
 
@@ -929,16 +1288,13 @@ function buildDashboard(){
 // EXPORT
 // ════════════════════════════════════════
 function exportCSV(){
-  if(!_ch){alert('Effectuez d\'abord tous les calculs.');return;}
+  if(!_ch){alert("Effectuez d'abord tous les calculs.");return;}
   const{ordre,nbC,score,sym,tbl}=_ch;
   let csv='\uFEFFsep=;\nRÉSULTATS KING & CHAÎNONS\n\nCLASSEMENT\nRang;Poste;Nb chaînons\n';
   ordre.forEach((p,i)=>csv+=`${i+1};${p};${nbC[p]}\n`);
   csv+=`\nOrdre optimal;${ordre.join(' → ')}\nScore;${score}\n\nCHAÎNONS\nA;B;Total;A→B;B→A\n`;
   postes.forEach((p,i)=>postes.forEach((q,j)=>{if(j>i&&sym[i][j]>0)csv+=`${p};${q};${sym[i][j]};${tbl[i][j]};${tbl[j][i]}\n`;}));
-  if(_king){
-    csv+='\nÎLOTS\nÎlot;Machines;Nb pièces\n';
-    _king.groups.forEach((g,gi)=>{const m=g.rows.map(r=>_king.mn[r]);csv+=`${gi+1};${m.join(' - ')};${_king.pn.slice(g.cS,g.cE+1).length}\n`;});
-  }
+  if(_king){csv+='\nÎLOTS\nÎlot;Machines;Nb pièces\n';_king.groups.forEach((g,gi)=>{csv+=`${gi+1};${g.rows.map(r=>_king.mn[r]).join(' - ')};${_king.pn.slice(g.cS,g.cE+1).length}\n`;});}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='king_chainons.csv';a.click();
 }
 
