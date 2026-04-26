@@ -3,883 +3,945 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analyse King & Chaînons</title>
+<title>King & Chaînons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f9f9f7;
-    --bg2: #ffffff;
-    --bg3: #f1efea;
-    --border: #e0ddd6;
-    --border2: #c8c4bb;
-    --text: #1a1a18;
-    --text2: #5a5a55;
-    --text3: #9a9a93;
-    --teal: #1D9E75;
-    --teal-light: #e1f5ee;
-    --teal-dark: #085041;
-    --purple: #534AB7;
-    --purple-light: #eeedfe;
-    --coral: #D85A30;
-    --coral-light: #faece7;
-    --blue: #378ADD;
-    --amber: #BA7517;
-    --amber-light: #faeeda;
-    --red: #A32D2D;
-    --green-text: #0F6E56;
-    --radius: 8px;
-    --radius-lg: 12px;
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0a0a08;
+  --paper:#f5f2ec;
+  --paper2:#ede9e0;
+  --paper3:#e2ddd3;
+  --line:#c8c3b5;
+  --line2:#a8a296;
+  --accent:#e8401c;
+  --accent2:#1c6be8;
+  --accent3:#18a86b;
+  --accent4:#d4a017;
+  --text-muted:#6b6660;
+  --mono:'Space Mono',monospace;
+  --sans:'Syne',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--paper);
+  color:var(--ink);
+  font-size:14px;
+  min-height:100vh;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px),
+    repeating-linear-gradient(90deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px);
+  background-size:40px 40px;
+}
 
-  /* HEADER */
-  .header { background: var(--bg2); border-bottom: 0.5px solid var(--border); padding: 16px 24px; position: sticky; top: 0; z-index: 100; }
-  .header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
-  .header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+/* ══ LAYOUT ══ */
+.shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
 
-  /* TABS */
-  .tabs { display: flex; gap: 0; background: var(--bg2); border-bottom: 0.5px solid var(--border); padding: 0 24px; overflow-x: auto; }
-  .tab { padding: 12px 18px; cursor: pointer; font-size: 13px; color: var(--text2); border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -0.5px; white-space: nowrap; font-family: inherit; transition: color .15s; }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+/* ══ SIDEBAR ══ */
+.sidebar{
+  background:var(--ink);
+  color:var(--paper);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;
+  overflow:hidden;
+}
+.sidebar::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:260px;height:260px;border-radius:50%;
+  background:var(--accent);opacity:.08;pointer-events:none;
+}
+.brand{padding:32px 28px 24px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
+.brand-title{font-size:26px;font-weight:800;line-height:1.1;letter-spacing:-.5px}
+.brand-title span{color:var(--accent)}
+.brand-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:8px;line-height:1.6}
 
-  /* LAYOUT */
-  .container { max-width: 900px; margin: 0 auto; padding: 24px 20px; }
-  .step { display: none; }
-  .step.active { display: block; }
+.nav{padding:20px 16px;flex:1}
+.nav-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.25);text-transform:uppercase;padding:0 12px;margin-bottom:8px;margin-top:16px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 12px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;
+  color:rgba(255,255,255,.45);
+  border:none;background:none;width:100%;text-align:left;
+  font-family:var(--sans);transition:all .2s;position:relative;
+  margin-bottom:2px;
+}
+.nav-item:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(255,255,255,.1)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;height:60%;width:3px;background:var(--accent);border-radius:0 2px 2px 0}
+.nav-item.done{color:var(--accent3)}
+.nav-num{
+  width:28px;height:28px;border-radius:6px;
+  background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  flex-shrink:0;transition:all .2s;
+}
+.nav-item.active .nav-num{background:var(--accent);color:#fff}
+.nav-item.done .nav-num{background:var(--accent3);color:#fff}
 
-  /* CARDS */
-  .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
-  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
-  .card-sub { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+.sidebar-footer{padding:20px 28px;border-top:1px solid rgba(255,255,255,.08)}
+.prog-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.3);margin-bottom:8px}
+.prog-track{height:3px;background:rgba(255,255,255,.1);border-radius:2px}
+.prog-fill{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}
 
-  /* FORMS */
-  input[type=text], select { height: 36px; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 0 12px; font-size: 13px; font-family: inherit; color: var(--text); background: var(--bg2); outline: none; transition: border-color .15s; }
-  input[type=text]:focus, select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(83,74,183,.12); }
-  select { cursor: pointer; }
+/* ══ MAIN ══ */
+.main{display:flex;flex-direction:column;min-height:100vh}
+.topbar{
+  background:rgba(245,242,236,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:0 36px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:40;
+}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.step-chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:1px;
+  background:var(--ink);color:var(--paper);
+  padding:4px 10px;border-radius:4px;text-transform:uppercase;
+}
+.topbar-title{font-size:14px;font-weight:700;color:var(--ink)}
+.topbar-right{display:flex;gap:8px}
 
-  /* BUTTONS */
-  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius); font-size: 13px; font-family: inherit; cursor: pointer; transition: all .15s; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text); font-weight: 500; }
-  .btn:hover { background: var(--bg3); }
-  .btn:active { transform: scale(.98); }
-  .btn-primary { background: var(--text); color: var(--bg2); border-color: var(--text); }
-  .btn-primary:hover { opacity: .85; background: var(--text); }
-  .btn-teal { background: var(--teal); color: #fff; border-color: var(--teal); }
-  .btn-teal:hover { opacity: .88; background: var(--teal); }
-  .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.page{padding:36px;max-width:1000px}
+.step{display:none}.step.active{display:block}
 
-  /* TAGS */
-  .tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; min-height: 36px; align-items: center; }
-  .tag { display: inline-flex; align-items: center; gap: 6px; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: 6px; padding: 4px 10px; font-size: 12px; }
-  .tag-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .tag-rm { cursor: pointer; color: var(--text3); font-size: 15px; line-height: 1; }
-  .tag-rm:hover { color: var(--red); }
+/* ══ PAGE HEADER ══ */
+.ph{margin-bottom:32px;position:relative}
+.ph-num{
+  font-family:var(--mono);font-size:72px;font-weight:700;
+  color:var(--line);line-height:1;position:absolute;
+  right:0;top:-16px;pointer-events:none;letter-spacing:-4px;
+}
+.ph h2{font-size:28px;font-weight:800;letter-spacing:-.6px;line-height:1.2}
+.ph h2 em{font-style:normal;color:var(--accent)}
+.ph p{font-size:13px;color:var(--text-muted);margin-top:8px;max-width:480px}
 
-  /* PRESETS */
-  .preset-area { background: var(--bg3); border: 0.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 16px; }
-  .preset-area .card-sub { margin-bottom: 10px; }
-  .preset-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+/* ══ CARDS ══ */
+.card{
+  background:var(--paper2);
+  border:1px solid var(--line);
+  border-radius:12px;padding:24px;
+  margin-bottom:18px;
+  position:relative;overflow:hidden;
+}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--line);border-radius:12px 12px 0 0}
+.card.accent-teal::after{background:var(--accent3)}
+.card.accent-red::after{background:var(--accent)}
+.card.accent-blue::after{background:var(--accent2)}
+.card.accent-gold::after{background:var(--accent4)}
+.card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title-tag{font-family:var(--mono);font-size:9px;background:var(--ink);color:var(--paper);padding:2px 7px;border-radius:3px;letter-spacing:1px}
 
-  /* IMPORT ZONE */
-  .import-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 18px; text-align: center; cursor: pointer; font-size: 13px; color: var(--text2); transition: all .15s; }
-  .import-zone:hover { background: var(--bg3); border-color: var(--purple); color: var(--text); }
-  .import-zone .hint { font-size: 11px; margin-top: 4px; color: var(--text3); }
+/* ══ FORMS ══ */
+input[type=text],select{
+  height:42px;border:1.5px solid var(--line);border-radius:8px;
+  padding:0 14px;font-size:13px;font-family:var(--sans);
+  color:var(--ink);background:var(--paper);outline:none;
+  transition:border-color .2s,box-shadow .2s;font-weight:600;
+}
+input[type=text]:focus,select:focus{
+  border-color:var(--accent2);
+  box-shadow:0 0 0 3px rgba(28,107,232,.12);
+}
+input[type=text]::placeholder{color:var(--line2);font-weight:400}
 
-  /* PIECE LIST */
-  .piece-list { max-height: 280px; overflow-y: auto; border: 0.5px solid var(--border); border-radius: var(--radius); }
-  .piece-row { display: grid; grid-template-columns: 90px 1fr 32px; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 0.5px solid var(--border); }
-  .piece-row:last-child { border-bottom: none; }
-  .piece-row:nth-child(even) { background: var(--bg3); }
-  .piece-name { font-weight: 500; font-size: 13px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
-  .chip { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; color: #fff; font-weight: 500; }
-  .chip-arrow { color: var(--text3); font-size: 10px; }
-  .piece-del { cursor: pointer; color: var(--text3); font-size: 16px; text-align: center; }
-  .piece-del:hover { color: var(--red); }
-  .empty-state { text-align: center; padding: 30px; font-size: 13px; color: var(--text3); }
+/* ══ BUTTONS ══ */
+.btn{
+  height:42px;padding:0 20px;border-radius:8px;
+  font-size:13px;font-family:var(--sans);cursor:pointer;
+  border:1.5px solid var(--line);background:var(--paper);
+  color:var(--ink);font-weight:700;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:all .2s;white-space:nowrap;
+}
+.btn:hover{background:var(--paper3);border-color:var(--line2);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn-dark:hover{background:#1a1a16;border-color:#1a1a16}
+.btn-red{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-red:hover{opacity:.88;background:var(--accent)}
+.btn-blue{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.btn-blue:hover{opacity:.88;background:var(--accent2)}
+.btn-green{background:var(--accent3);color:#fff;border-color:var(--accent3)}
+.btn-green:hover{opacity:.88;background:var(--accent3)}
+.btn-sm{height:34px;padding:0 14px;font-size:12px}
 
-  /* GAMME EN COURS */
-  .gamme-preview { min-height: 38px; border: 0.5px dashed var(--border2); border-radius: var(--radius); padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-bottom: 10px; }
+/* ══ TAGS ══ */
+.tags{display:flex;flex-wrap:wrap;gap:7px;min-height:42px;align-items:center}
+.tag{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--paper);border:1.5px solid var(--line);
+  border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;
+  transition:all .15s;
+}
+.tag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tag-rm{cursor:pointer;color:var(--line2);font-size:14px;line-height:1;margin-left:2px;transition:color .15s}
+.tag-rm:hover{color:var(--accent)}
 
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 16px; }
-  .stat-card { background: var(--bg3); border-radius: var(--radius); padding: 12px 14px; text-align: center; }
-  .stat-val { font-size: 24px; font-weight: 600; color: var(--text); }
-  .stat-lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+/* ══ PRESET CARDS ══ */
+.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.preset{
+  border:1.5px solid var(--line);border-radius:10px;
+  padding:16px;cursor:pointer;transition:all .2s;
+  background:var(--paper);position:relative;overflow:hidden;
+}
+.preset::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line);border-radius:10px 0 0 10px}
+.preset:nth-child(1)::before{background:var(--accent)}
+.preset:nth-child(2)::before{background:var(--accent2)}
+.preset:nth-child(3)::before{background:var(--accent3)}
+.preset:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--line2)}
+.preset h4{font-size:14px;font-weight:800;margin-bottom:4px}
+.preset p{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
 
-  /* ALERTS */
-  .alert { padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 14px; }
-  .alert-ok { background: var(--teal-light); color: var(--green-text); border: 0.5px solid #9fe1cb; }
-  .alert-warn { background: var(--amber-light); color: var(--amber); border: 0.5px solid #fac775; }
+/* ══ IMPORT ══ */
+.drop{
+  border:2px dashed var(--line);border-radius:10px;padding:28px;
+  text-align:center;cursor:pointer;transition:all .2s;
+}
+.drop:hover{border-color:var(--accent2);background:rgba(28,107,232,.04)}
+.drop-ico{font-size:28px;margin-bottom:10px;opacity:.4}
+.drop-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.drop-sub{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
 
-  /* MATRIX */
-  .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table.matrix { border-collapse: collapse; font-size: 12px; }
-  table.matrix th, table.matrix td { border: 0.5px solid var(--border); padding: 5px 7px; text-align: center; white-space: nowrap; }
-  table.matrix th { background: var(--bg3); font-weight: 500; position: sticky; top: 0; }
-  table.matrix th.row-h { position: sticky; left: 0; z-index: 2; text-align: left; padding-left: 10px; }
-  .cell-1 { background: #1D9E75; color: #fff; font-weight: 600; }
-  .cell-0 { background: var(--bg2); }
-  .cell-ilot { color: #fff; font-weight: 600; }
+/* ══ PIECE LIST ══ */
+.plist{border:1.5px solid var(--line);border-radius:10px;overflow:hidden;max-height:320px;overflow-y:auto}
+.plist-head{display:grid;grid-template-columns:90px 1fr 32px;gap:8px;padding:9px 16px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.prow{display:grid;grid-template-columns:90px 1fr 32px;gap:8px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);transition:background .15s}
+.prow:hover{background:var(--paper3)}
+.pname{font-weight:800;font-size:13px;font-family:var(--mono)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.chip{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;color:#fff;font-weight:700;font-family:var(--mono)}
+.chip-arr{color:var(--line2);font-size:10px;margin:0 1px}
+.del{cursor:pointer;color:var(--line2);font-size:16px;text-align:center;transition:color .15s}
+.del:hover{color:var(--accent)}
+.empty{text-align:center;padding:36px;font-size:13px;color:var(--text-muted);font-family:var(--mono)}
 
-  /* ILOTS */
-  .ilot-card { padding: 12px 14px; border-radius: var(--radius); margin-bottom: 8px; border-left: 3px solid; background: var(--bg3); }
-  .ilot-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
-  .ilot-detail { font-size: 12px; color: var(--text2); line-height: 1.7; }
+/* ══ GAMME BOX ══ */
+.gamme-box{
+  min-height:46px;border:1.5px dashed var(--line);border-radius:8px;
+  padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+  background:var(--paper);margin-bottom:14px;
+}
 
-  /* CHAINONS */
-  .chainon-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); gap: 10px; }
-  .chainon-row:last-child { border-bottom: none; }
-  .chainon-name { font-weight: 500; font-size: 13px; min-width: 120px; }
-  .chainon-dirs { font-size: 11px; color: var(--text3); min-width: 80px; }
-  .flux-bar-wrap { flex: 1; background: var(--bg3); border-radius: 4px; height: 8px; max-width: 160px; }
-  .flux-bar { height: 8px; border-radius: 4px; background: var(--teal); min-width: 4px; }
-  .flux-val { font-weight: 600; min-width: 30px; text-align: right; font-size: 13px; }
+/* ══ ALERTS ══ */
+.alert{
+  padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;
+  display:flex;align-items:flex-start;gap:10px;font-weight:600;
+  border-left:4px solid;
+}
+.alert-ok{background:rgba(24,168,107,.08);color:#0d6b44;border-color:var(--accent3)}
+.alert-warn{background:rgba(212,160,23,.08);color:#8a6000;border-color:var(--accent4)}
+.alert-info{background:rgba(28,107,232,.08);color:#1247a0;border-color:var(--accent2)}
 
-  /* CANVAS */
-  #u-canvas { width: 100%; border-radius: var(--radius); display: block; }
+/* ══ STATS ══ */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:22px}
+.stat{
+  background:var(--paper);border:1.5px solid var(--line);
+  border-radius:10px;padding:18px 20px;position:relative;overflow:hidden;
+}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.stat.s-red::after{background:var(--accent)}
+.stat.s-blue::after{background:var(--accent2)}
+.stat.s-green::after{background:var(--accent3)}
+.stat.s-gold::after{background:var(--accent4)}
+.stat-val{font-size:32px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;line-height:1}
+.stat-lbl{font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 
-  /* NAV FOOTER */
-  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+/* ══ MATRIX ══ */
+.mx-scroll{overflow:auto;border-radius:8px;border:1.5px solid var(--line)}
+table.mx{border-collapse:collapse;font-size:11px;font-family:var(--mono)}
+table.mx th,table.mx td{border:1px solid var(--line);padding:5px 8px;text-align:center;white-space:nowrap}
+table.mx thead th{background:var(--ink);color:var(--paper);font-size:9px;letter-spacing:1px;position:sticky;top:0;z-index:2}
+table.mx .rh{position:sticky;left:0;z-index:3;background:var(--ink);color:var(--paper);text-align:left;padding-left:14px;font-size:10px}
+.cx{color:#fff;font-weight:700}
+.c0{background:var(--paper)}
 
-  /* RANKING TABLE */
-  table.rank { width: 100%; border-collapse: collapse; font-size: 13px; }
-  table.rank th, table.rank td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); text-align: left; }
-  table.rank th { font-weight: 500; color: var(--text2); font-size: 12px; background: var(--bg3); }
-  table.rank tr:last-child td { border-bottom: none; }
+/* ══ ILOTS ══ */
+.ilot{
+  padding:16px 18px;border-radius:10px;margin-bottom:10px;
+  border-left:4px solid;background:var(--paper);
+  display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
+}
+.ilot-num{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:14px;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.ilot-title{font-weight:800;font-size:13px;margin-bottom:5px}
+.ilot-body{font-size:12px;color:var(--text-muted);line-height:1.8;font-family:var(--mono)}
 
-  /* RESPONSIVE */
-  @media (max-width: 600px) {
-    .container { padding: 16px 12px; }
-    .tab { padding: 10px 12px; font-size: 12px; }
-    .piece-row { grid-template-columns: 70px 1fr 28px; }
-  }
+/* ══ CHAINONS ══ */
+.ch-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ch-row:last-child{border-bottom:none}
+.ch-name{font-weight:800;font-size:13px;min-width:140px;font-family:var(--mono)}
+.ch-dirs{font-size:10px;color:var(--text-muted);min-width:80px;font-family:var(--mono)}
+.ch-bar-wrap{flex:1;background:var(--paper3);border-radius:2px;height:6px;max-width:200px}
+.ch-bar{height:6px;border-radius:2px;background:var(--accent2);transition:width .6s cubic-bezier(.4,0,.2,1)}
+.ch-val{font-weight:800;font-size:14px;min-width:30px;text-align:right;font-family:var(--mono)}
+
+/* ══ RANK ══ */
+table.rank{width:100%;border-collapse:collapse;font-size:13px}
+table.rank th{padding:10px 14px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--paper);background:var(--ink);text-transform:uppercase}
+table.rank td{padding:11px 14px;border-bottom:1px solid var(--line);font-weight:600}
+table.rank tr:last-child td{border-bottom:none}
+table.rank tr:hover td{background:var(--paper3)}
+table.rank .rank-num{font-family:var(--mono);font-weight:800;color:var(--text-muted)}
+
+/* ══ CANVAS ══ */
+canvas{display:block;width:100%;border-radius:8px;border:1.5px solid var(--line)}
+
+/* ══ DASHBOARD ══ */
+.dash-hero{
+  background:var(--ink);color:var(--paper);
+  border-radius:12px;padding:32px;margin-bottom:22px;
+  position:relative;overflow:hidden;
+}
+.dash-hero::before{
+  content:'RÉSULTATS';position:absolute;right:-10px;top:50%;transform:translateY(-50%);
+  font-size:80px;font-weight:800;opacity:.04;letter-spacing:-3px;pointer-events:none;
+}
+.dash-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
+.dash-hero h2{font-size:24px;font-weight:800;margin-bottom:6px}
+.dash-hero p{font-size:13px;opacity:.5;font-family:var(--mono)}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.rcard{border:1.5px solid var(--line);border-radius:10px;padding:20px;background:var(--paper)}
+.rcard h3{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+
+/* ══ NAV FOOTER ══ */
+.nf{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:24px;border-top:1px solid var(--line)}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.step.active>*{animation:fadeUp .35s ease both}
+.step.active>*:nth-child(2){animation-delay:.06s}
+.step.active>*:nth-child(3){animation-delay:.12s}
+.step.active>*:nth-child(4){animation-delay:.18s}
+
+@media(max-width:720px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .page{padding:20px 16px}
+  .preset-grid,.result-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Analyse King &amp; Chaînons</h1>
-  <p>Saisissez vos données de production pour générer les matrices et l'implantation optimale</p>
+<div class="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-eyebrow">Génie Industriel</div>
+    <div class="brand-title">King &amp;<br><span>&amp; Chaînons</span></div>
+    <div class="brand-sub">Analyse et optimisation d'îlots de fabrication par méthodes matricielles</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Saisie des données</div>
+    <button class="nav-item active" id="nav0" onclick="goTab(0)">
+      <span class="nav-num" id="dot0">01</span>Postes de travail
+    </button>
+    <button class="nav-item" id="nav1" onclick="goTab(1)">
+      <span class="nav-num" id="dot1">02</span>Pièces &amp; gammes
+    </button>
+    <div class="nav-label">Calculs &amp; résultats</div>
+    <button class="nav-item" id="nav2" onclick="goTab(2)">
+      <span class="nav-num" id="dot2">03</span>Matrice de King
+    </button>
+    <button class="nav-item" id="nav3" onclick="goTab(3)">
+      <span class="nav-num" id="dot3">04</span>Méthode des chaînons
+    </button>
+    <div class="nav-label">Synthèse</div>
+    <button class="nav-item" id="nav4" onclick="goTab(4)">
+      <span class="nav-num" id="dot4">05</span>Tableau de bord
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="prog-label">
+      <span>Progression</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="step-chip" id="step-chip">ÉTAPE 1/5</span>
+      <span class="topbar-title" id="topbar-title">Postes de travail</span>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-sm btn-dark" onclick="exportCSV()">↓ Exporter CSV</button>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- ══ 1 POSTES ══ -->
+    <div class="step active" id="step0">
+      <div class="ph">
+        <div class="ph-num">01</div>
+        <h2>Postes de <em>travail</em></h2>
+        <p>Définissez les machines de votre îlot de fabrication. Chaque poste sera un nœud dans l'analyse.</p>
+      </div>
+
+      <div class="card accent-red">
+        <div class="card-title">Ajouter un poste <span class="card-title-tag">SAISIE</span></div>
+        <div style="display:flex;gap:10px;margin-bottom:18px">
+          <input type="text" id="poste-input" placeholder="Ex: TRF23" style="flex:1" onkeydown="if(event.key==='Enter')addPoste()">
+          <button class="btn btn-dark" onclick="addPoste()">+ Ajouter</button>
+        </div>
+        <div class="tags" id="postes-tags">
+          <span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// aucun poste défini</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Jeux de données prédéfinis <span class="card-title-tag">EXEMPLES</span></div>
+        <div class="preset-grid">
+          <div class="preset" onclick="loadPreset('flux3')">
+            <h4>FLUX 3</h4>
+            <p>TRF23 · TRF24 · LAV · BEE<br>27 pièces · 4 postes</p>
+          </div>
+          <div class="preset" onclick="loadPreset('flux41')">
+            <h4>FLUX 4.1</h4>
+            <p>TRF38 · TRF48<br>10 pièces · 2 postes</p>
+          </div>
+          <div class="preset" onclick="loadPreset('flux1')">
+            <h4>FLUX 1</h4>
+            <p>TRF19·TRF27·LAV·PUS·BEE·TOU<br>7 pièces · 6 postes</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nf">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)" id="cnt-p">0 poste(s)</span>
+        <button class="btn btn-dark" onclick="goTab(1)">Pièces &amp; gammes →</button>
+      </div>
+    </div>
+
+    <!-- ══ 2 PIÈCES ══ -->
+    <div class="step" id="step1">
+      <div class="ph">
+        <div class="ph-num">02</div>
+        <h2>Pièces &amp; <em>gammes</em></h2>
+        <p>Définissez pour chaque pièce la séquence de postes traversés lors de sa fabrication.</p>
+      </div>
+
+      <div class="card accent-blue">
+        <div class="card-title">Import CSV <span class="card-title-tag">FICHIER</span></div>
+        <div class="drop" onclick="document.getElementById('csv-file').click()">
+          <div class="drop-ico">⬆</div>
+          <div class="drop-title">Glissez un fichier CSV ou cliquez pour choisir</div>
+          <div class="drop-sub">Format : NomPiece ; Poste1 ; Poste2 ; ...</div>
+          <input type="file" id="csv-file" accept=".csv,.txt" style="display:none" onchange="importCSV(event)">
+        </div>
+      </div>
+
+      <div class="card accent-blue">
+        <div class="card-title">Saisie manuelle <span class="card-title-tag">MANUEL</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center">
+          <input type="text" id="piece-name" placeholder="Nom pièce (ex: P01)" style="width:150px">
+          <select id="piece-poste" style="flex:1;min-width:130px"></select>
+          <button class="btn" onclick="addPosteToGamme()">+ Poste</button>
+          <button class="btn btn-green" onclick="addPiece()">✓ Valider</button>
+        </div>
+        <div class="gamme-box" id="gamme-box">
+          <span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// gamme en cours…</span>
+        </div>
+        <div id="pieces-list" class="plist">
+          <div class="empty">// aucune pièce — importez un CSV ou saisissez</div>
+        </div>
+      </div>
+
+      <div class="nf">
+        <button class="btn" onclick="goTab(0)">← Retour</button>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)" id="cnt-pc">0 pièce(s)</span>
+          <button class="btn btn-red" onclick="computeKing()">Calculer King →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 3 KING ══ -->
+    <div class="step" id="step2">
+      <div class="ph">
+        <div class="ph-num">03</div>
+        <h2>Matrice de <em>King</em></h2>
+        <p>Tri binaire itératif — réordonne la matrice pour faire apparaître les îlots de fabrication.</p>
+      </div>
+      <div id="king-result">
+        <div class="alert alert-warn">⚠ Lancez le calcul depuis l'étape 02.</div>
+      </div>
+      <div class="nf">
+        <button class="btn" onclick="goTab(1)">← Retour</button>
+        <button class="btn btn-blue" onclick="computeChainons()">Calculer Chaînons →</button>
+      </div>
+    </div>
+
+    <!-- ══ 4 CHAÎNONS ══ -->
+    <div class="step" id="step3">
+      <div class="ph">
+        <div class="ph-num">04</div>
+        <h2>Méthode des <em>chaînons</em></h2>
+        <p>Calcul des indices de flux et optimisation de l'implantation en U par minimisation des distances.</p>
+      </div>
+      <div id="chainons-result">
+        <div class="alert alert-warn">⚠ Lancez le calcul depuis l'étape 03.</div>
+      </div>
+      <div class="nf">
+        <button class="btn" onclick="goTab(2)">← Retour</button>
+        <button class="btn btn-dark" onclick="goTab(4)">Tableau de bord →</button>
+      </div>
+    </div>
+
+    <!-- ══ 5 DASHBOARD ══ -->
+    <div class="step" id="step4">
+      <div class="ph">
+        <div class="ph-num">05</div>
+        <h2>Tableau de <em>bord</em></h2>
+        <p>Synthèse complète de l'analyse — King, chaînons, implantation optimale.</p>
+      </div>
+      <div id="dashboard-result">
+        <div class="alert alert-warn">⚠ Effectuez d'abord les calculs (étapes 03 et 04).</div>
+      </div>
+      <div class="nf">
+        <button class="btn" onclick="goTab(3)">← Retour</button>
+        <button class="btn btn-dark" onclick="exportCSV()">↓ Télécharger CSV</button>
+      </div>
+    </div>
+
+  </div>
 </div>
-
-<div class="tabs">
-  <button class="tab active" onclick="goTab(0)">1 · Postes</button>
-  <button class="tab" onclick="goTab(1)">2 · Pièces &amp; gammes</button>
-  <button class="tab" onclick="goTab(2)">3 · Matrice de King</button>
-  <button class="tab" onclick="goTab(3)">4 · Méthode des chaînons</button>
-</div>
-
-<div class="container">
-
-  <!-- ====== ÉTAPE 1 : POSTES ====== -->
-  <div class="step active" id="step0">
-    <div class="card">
-      <div class="card-title">Définir les postes de travail</div>
-      <div class="card-sub">Entrez le nom de chaque poste (machine) de votre îlot de fabrication</div>
-      <div style="display:flex;gap:8px;margin-bottom:14px">
-        <input type="text" id="poste-input" placeholder="Ex: TRF23" style="flex:1" onkeydown="if(event.key==='Enter')addPoste()">
-        <button class="btn btn-primary" onclick="addPoste()">+ Ajouter</button>
-      </div>
-      <div class="tags-wrap" id="postes-tags">
-        <span style="font-size:12px;color:var(--text3)">Aucun poste défini</span>
-      </div>
-    </div>
-
-    <div class="preset-area">
-      <div class="card-sub">Ou chargez un exemple prédéfini :</div>
-      <div class="preset-btns">
-        <button class="btn" onclick="loadPreset('flux3')">FLUX 3 — TRF23-TRF24-LAV-BEE</button>
-        <button class="btn" onclick="loadPreset('flux41')">FLUX 4.1 — TRF38-TRF48</button>
-        <button class="btn" onclick="loadPreset('flux1')">FLUX 1 — 6 postes</button>
-      </div>
-    </div>
-
-    <div class="nav-footer">
-      <span></span>
-      <button class="btn btn-primary" onclick="goTab(1)">Suivant → Pièces &amp; gammes</button>
-    </div>
-  </div>
-
-  <!-- ====== ÉTAPE 2 : PIÈCES ====== -->
-  <div class="step" id="step1">
-    <div class="card">
-      <div class="card-title">Saisir les gammes opératoires</div>
-
-      <div class="import-zone" onclick="document.getElementById('csv-file').click()">
-        Importer un fichier CSV &nbsp;—&nbsp; format : <code>NomPiece;Poste1;Poste2;...</code>
-        <div class="hint">Cliquez pour choisir un fichier .csv ou .txt</div>
-        <input type="file" id="csv-file" accept=".csv,.txt" style="display:none" onchange="importCSV(event)">
-      </div>
-
-      <div style="text-align:center;font-size:12px;color:var(--text3);margin:10px 0">— ou saisissez manuellement —</div>
-
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center">
-        <input type="text" id="piece-name" placeholder="Nom pièce (ex: P01)" style="width:130px">
-        <select id="piece-poste" style="flex:1;min-width:120px"></select>
-        <button class="btn" onclick="addPosteToGamme()">+ Poste</button>
-        <button class="btn btn-teal" onclick="addPiece()">Valider pièce</button>
-      </div>
-
-      <div class="gamme-preview" id="gamme-preview">
-        <span style="font-size:12px;color:var(--text3)">Gamme en cours — ajoutez des postes ci-dessus</span>
-      </div>
-
-      <div id="pieces-list" class="piece-list">
-        <div class="empty-state">Aucune pièce ajoutée</div>
-      </div>
-    </div>
-
-    <div class="nav-footer">
-      <button class="btn" onclick="goTab(0)">← Retour</button>
-      <button class="btn btn-primary" onclick="computeKing()">Calculer → Matrice de King</button>
-    </div>
-  </div>
-
-  <!-- ====== ÉTAPE 3 : KING ====== -->
-  <div class="step" id="step2">
-    <div id="king-result">
-      <div class="alert alert-warn">Lancez d'abord le calcul depuis l'étape 2.</div>
-    </div>
-    <div class="nav-footer">
-      <button class="btn" onclick="goTab(1)">← Retour</button>
-      <button class="btn btn-primary" onclick="computeChainons()">Calculer → Méthode des chaînons</button>
-    </div>
-  </div>
-
-  <!-- ====== ÉTAPE 4 : CHAÎNONS ====== -->
-  <div class="step" id="step3">
-    <div id="chainons-result">
-      <div class="alert alert-warn">Lancez d'abord le calcul depuis l'étape 3.</div>
-    </div>
-    <div class="nav-footer">
-      <button class="btn" onclick="goTab(2)">← Retour</button>
-      <button class="btn" onclick="exportCSV()">Télécharger résultats CSV</button>
-    </div>
-  </div>
-
 </div>
 
 <script>
-// ============================================================
+// ════════════════════════════════════════
 // STATE
-// ============================================================
-let postes = [];
-let pieces = [];
-let currentGamme = [];
+// ════════════════════════════════════════
+let postes=[],pieces=[],currentGamme=[];
+let _king=null,_ch=null;
 
-const COLORS = [
-  '#1D9E75','#534AB7','#D85A30','#378ADD',
-  '#BA7517','#993556','#3B6D11','#A32D2D','#0F6E56','#634AB7'
-];
+const COLORS=['#e8401c','#1c6be8','#18a86b','#d4a017','#8b2e85','#2e6b4f','#a02828','#1a5c8a','#6b4f2e','#2e4f8a'];
+const GCOLS=['#e8401c','#1c6be8','#18a86b','#d4a017','#8b2e85','#2e6b4f'];
+const TITLES=['Postes de travail','Pièces & gammes','Matrice de King','Méthode des chaînons','Tableau de bord'];
 
-// ============================================================
-// NAVIGATION
-// ============================================================
-function goTab(n) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===n));
-  document.querySelectorAll('.step').forEach((s,i) => s.classList.toggle('active', i===n));
-  window.scrollTo({top:0, behavior:'smooth'});
+// ════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════
+function goTab(n){
+  document.querySelectorAll('.step').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.nav-item').forEach((b,i)=>b.classList.toggle('active',i===n));
+  document.getElementById('topbar-title').textContent=TITLES[n];
+  document.getElementById('step-chip').textContent=`ÉTAPE ${n+1}/5`;
+  const pct=Math.round((n/4)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function markDone(n){
+  document.getElementById('nav'+n).classList.add('done');
+  document.getElementById('dot'+n).textContent='✓';
 }
 
-// ============================================================
-// ÉTAPE 1 : POSTES
-// ============================================================
-function addPoste() {
-  const v = document.getElementById('poste-input').value.trim().toUpperCase();
-  if (!v || postes.includes(v)) return;
+// ════════════════════════════════════════
+// POSTES
+// ════════════════════════════════════════
+function addPoste(){
+  const v=document.getElementById('poste-input').value.trim().toUpperCase();
+  if(!v||postes.includes(v))return;
   postes.push(v);
-  document.getElementById('poste-input').value = '';
-  renderPostes();
-  updateSelect();
+  document.getElementById('poste-input').value='';
+  renderPostes();updateSelect();updateCounts();
+}
+function removePoste(p){postes=postes.filter(x=>x!==p);renderPostes();updateSelect();updateCounts();}
+function renderPostes(){
+  const c=document.getElementById('postes-tags');
+  if(!postes.length){c.innerHTML='<span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// aucun poste défini</span>';return;}
+  c.innerHTML=postes.map((p,i)=>`<span class="tag"><span class="tag-dot" style="background:${COLORS[i%COLORS.length]}"></span>${p}<span class="tag-rm" onclick="removePoste('${p}')">&times;</span></span>`).join('');
+}
+function updateSelect(){
+  const s=document.getElementById('piece-poste');
+  s.innerHTML=postes.length?postes.map(p=>`<option value="${p}">${p}</option>`).join(''):'<option>— définissez d\'abord les postes —</option>';
+}
+function updateCounts(){
+  document.getElementById('cnt-p').textContent=`${postes.length} poste(s)`;
+  document.getElementById('cnt-pc').textContent=`${pieces.length} pièce(s)`;
 }
 
-function removePoste(p) {
-  postes = postes.filter(x => x !== p);
-  renderPostes();
-  updateSelect();
+// ════════════════════════════════════════
+// PIÈCES
+// ════════════════════════════════════════
+function addPosteToGamme(){
+  const p=document.getElementById('piece-poste').value;
+  if(!p||!postes.length){alert('Définissez d\'abord des postes.');return;}
+  currentGamme.push(p);renderGamme();
 }
-
-function renderPostes() {
-  const c = document.getElementById('postes-tags');
-  if (postes.length === 0) {
-    c.innerHTML = '<span style="font-size:12px;color:var(--text3)">Aucun poste défini</span>';
-    return;
-  }
-  c.innerHTML = postes.map((p,i) =>
-    `<span class="tag">
-      <span class="tag-dot" style="background:${COLORS[i%COLORS.length]}"></span>
-      ${p}
-      <span class="tag-rm" onclick="removePoste('${p}')">&times;</span>
-    </span>`
-  ).join('');
-}
-
-function updateSelect() {
-  const s = document.getElementById('piece-poste');
-  s.innerHTML = postes.length
-    ? postes.map(p => `<option value="${p}">${p}</option>`).join('')
-    : '<option value="">— définissez d\'abord les postes —</option>';
-}
-
-// ============================================================
-// ÉTAPE 2 : PIÈCES
-// ============================================================
-function addPosteToGamme() {
-  const p = document.getElementById('piece-poste').value;
-  if (!p) { alert('Définissez d\'abord des postes dans l\'étape 1.'); return; }
-  currentGamme.push(p);
-  renderGammePreview();
-}
-
-function removeFromGamme(i) {
-  currentGamme.splice(i, 1);
-  renderGammePreview();
-}
-
-function renderGammePreview() {
-  const c = document.getElementById('gamme-preview');
-  if (currentGamme.length === 0) {
-    c.innerHTML = '<span style="font-size:12px;color:var(--text3)">Gamme en cours — ajoutez des postes ci-dessus</span>';
-    return;
-  }
-  c.innerHTML = currentGamme.map((p, i) => {
-    const ci = postes.indexOf(p);
-    return (i > 0 ? '<span class="chip-arrow">→</span>' : '')
-      + `<span class="tag" style="border-color:${COLORS[ci%COLORS.length]}55">
-          <span class="tag-dot" style="background:${COLORS[ci%COLORS.length]}"></span>
-          ${p}
-          <span class="tag-rm" onclick="removeFromGamme(${i})">&times;</span>
-        </span>`;
+function removeFromGamme(i){currentGamme.splice(i,1);renderGamme();}
+function renderGamme(){
+  const c=document.getElementById('gamme-box');
+  if(!currentGamme.length){c.innerHTML='<span style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">// gamme en cours…</span>';return;}
+  c.innerHTML=currentGamme.map((p,i)=>{
+    const ci=postes.indexOf(p);
+    return(i>0?'<span class="chip-arr">→</span>':'')+`<span class="tag" style="border-color:${COLORS[ci%COLORS.length]}55"><span class="tag-dot" style="background:${COLORS[ci%COLORS.length]}"></span>${p}<span class="tag-rm" onclick="removeFromGamme(${i})">&times;</span></span>`;
   }).join('');
 }
-
-function addPiece() {
-  if (currentGamme.length === 0) { alert('Ajoutez au moins un poste à la gamme avant de valider.'); return; }
-  const name = document.getElementById('piece-name').value.trim() || `P${String(pieces.length+1).padStart(2,'0')}`;
-  pieces.push({ name, gamme: [...currentGamme] });
-  currentGamme = [];
-  document.getElementById('piece-name').value = '';
-  renderGammePreview();
-  renderPieces();
+function addPiece(){
+  if(!currentGamme.length){alert('Ajoutez au moins un poste.');return;}
+  const name=document.getElementById('piece-name').value.trim()||`P${String(pieces.length+1).padStart(2,'0')}`;
+  pieces.push({name,gamme:[...currentGamme]});
+  currentGamme=[];document.getElementById('piece-name').value='';
+  renderGamme();renderPieces();updateCounts();
 }
-
-function removePiece(i) {
-  pieces.splice(i, 1);
-  renderPieces();
+function removePiece(i){pieces.splice(i,1);renderPieces();updateCounts();}
+function renderPieces(){
+  const c=document.getElementById('pieces-list');
+  if(!pieces.length){c.innerHTML='<div class="empty">// aucune pièce</div>';return;}
+  c.innerHTML=`<div class="plist-head"><span>Pièce</span><span>Gamme opératoire</span><span></span></div>`
+    +pieces.map((p,i)=>`<div class="prow">
+      <span class="pname">${p.name}</span>
+      <span class="chips">${p.gamme.map((m,mi)=>{const ci=postes.indexOf(m);return(mi>0?'<span class="chip-arr">→</span>':'')+`<span class="chip" style="background:${COLORS[ci%COLORS.length]}">${m}</span>`;}).join('')}</span>
+      <span class="del" onclick="removePiece(${i})">&times;</span>
+    </div>`).join('');
 }
-
-function renderPieces() {
-  const c = document.getElementById('pieces-list');
-  if (pieces.length === 0) {
-    c.innerHTML = '<div class="empty-state">Aucune pièce ajoutée</div>';
-    return;
-  }
-  c.innerHTML = `
-    <div class="piece-row" style="background:var(--bg3);font-weight:500;font-size:12px;color:var(--text2)">
-      <span>Pièce</span><span>Gamme opératoire</span><span></span>
-    </div>
-    ${pieces.map((p,i) => `
-      <div class="piece-row">
-        <span class="piece-name">${p.name}</span>
-        <span class="chips">
-          ${p.gamme.map((m, mi) => {
-            const ci = postes.indexOf(m);
-            return (mi>0?'<span class="chip-arrow">→</span>':'')
-              + `<span class="chip" style="background:${COLORS[ci%COLORS.length]}">${m}</span>`;
-          }).join('')}
-        </span>
-        <span class="piece-del" onclick="removePiece(${i})">&times;</span>
-      </div>
-    `).join('')}
-  `;
-}
-
-function importCSV(e) {
-  const f = e.target.files[0];
-  if (!f) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const lines = ev.target.result.split('\n').filter(l => l.trim());
-    let imported = 0;
-    lines.forEach(line => {
-      const cells = line.split(/[,;|\t]/).map(c => c.trim().replace(/"/g,'')).filter(Boolean);
-      if (cells.length < 2) return;
-      const pName = cells[0];
-      const gamme = cells.slice(1).map(m => m.toUpperCase());
-      // auto-ajouter les postes manquants
-      gamme.forEach(m => { if (!postes.includes(m)) { postes.push(m); } });
-      pieces.push({ name: pName, gamme });
-      imported++;
+function importCSV(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const lines=ev.target.result.split('\n').filter(l=>l.trim());
+    let n=0;
+    lines.forEach(line=>{
+      const cells=line.split(/[,;|\t]/).map(c=>c.trim().replace(/"/g,'')).filter(Boolean);
+      if(cells.length<2)return;
+      const gamme=cells.slice(1).map(m=>m.toUpperCase());
+      gamme.forEach(m=>{if(!postes.includes(m))postes.push(m);});
+      pieces.push({name:cells[0],gamme});n++;
     });
-    renderPostes(); updateSelect(); renderPieces();
-    alert(`${imported} pièce(s) importée(s) avec succès.`);
+    renderPostes();updateSelect();renderPieces();updateCounts();
+    alert(`${n} pièce(s) importée(s).`);
   };
-  reader.readAsText(f);
-  e.target.value = '';
+  r.readAsText(f);e.target.value='';
 }
 
-// ============================================================
+// ════════════════════════════════════════
 // PRESETS
-// ============================================================
-function loadPreset(id) {
-  postes = []; pieces = [];
-  if (id === 'flux3') {
-    postes = ['TRF23','TRF24','LAV','BEE'];
-    const defs = [
-      {n:'P01',g:['TRF23','TRF24','LAV','BEE']},{n:'P02',g:['TRF23','TRF24','LAV','BEE']},
-      {n:'P03',g:['TRF23','TRF24','LAV','BEE']},{n:'P04',g:['TRF23','TRF24','LAV','BEE']},
-      {n:'P05',g:['TRF23','TRF24','LAV','BEE']},{n:'P06',g:['TRF23','TRF24','LAV','BEE']},
-      {n:'P07',g:['TRF23','TRF24','LAV','BEE']},{n:'P08',g:['TRF23','TRF24','LAV','BEE']},
-      {n:'P09',g:['TRF23','TRF24','LAV','BEE']},{n:'P10',g:['TRF23','TRF24','LAV','BEE']},
-      {n:'P11',g:['TRF23','TRF24','LAV','BEE']},{n:'P12',g:['TRF23','TRF24','LAV','BEE']},
-      {n:'P13',g:['TRF23','TRF24','LAV','BEE']},{n:'P14',g:['TRF23','TRF24','LAV','BEE']},
-      {n:'P15',g:['TRF23','LAV','BEE']},{n:'P16',g:['TRF23','LAV','BEE']},
-      {n:'P17',g:['TRF23','LAV','BEE']},{n:'P18',g:['TRF23','LAV','BEE']},
-      {n:'P19',g:['TRF23','LAV','BEE']},{n:'P20',g:['TRF23','LAV','BEE']},
-      {n:'P21',g:['TRF23','LAV','BEE']},
-      {n:'P22',g:['TRF24','LAV','BEE']},{n:'P23',g:['TRF24','LAV','BEE']},
-      {n:'P24',g:['TRF24','LAV','BEE']},{n:'P25',g:['TRF24','LAV','BEE']},
-      {n:'P26',g:['TRF23','TRF24','BEE']},{n:'P27',g:['TRF23','TRF24','BEE']},
-    ];
-    defs.forEach(d => pieces.push({name:d.n, gamme:d.g}));
-  } else if (id === 'flux41') {
-    postes = ['TRF38','TRF48'];
-    for (let i=1;i<=8;i++) pieces.push({name:`P${String(i).padStart(2,'0')}`,gamme:['TRF38','TRF48']});
-    pieces.push({name:'P09',gamme:['TRF38']});
-    pieces.push({name:'P10',gamme:['TRF48']});
-  } else if (id === 'flux1') {
-    postes = ['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23'];
-    const defs = [
-      {n:'P01',g:['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23']},
-      {n:'P02',g:['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23']},
-      {n:'P03',g:['TRF19','TRF27','LAV05','BEE30','TOU23']},
-      {n:'P04',g:['TRF19','TRF27','LAV05','BEE30']},
-      {n:'P05',g:['TRF27','LAV05','PUS06','BEE30','TOU23']},
-      {n:'P06',g:['TRF19','LAV05','PUS06','TOU23']},
-      {n:'P07',g:['TRF19','TRF27','PUS06','BEE30']},
-    ];
-    defs.forEach(d => pieces.push({name:d.n, gamme:d.g}));
+// ════════════════════════════════════════
+function loadPreset(id){
+  postes=[];pieces=[];currentGamme=[];
+  if(id==='flux3'){
+    postes=['TRF23','TRF24','LAV','BEE'];
+    [['P01',['TRF23','TRF24','LAV','BEE']],['P02',['TRF23','TRF24','LAV','BEE']],['P03',['TRF23','TRF24','LAV','BEE']],['P04',['TRF23','TRF24','LAV','BEE']],['P05',['TRF23','TRF24','LAV','BEE']],['P06',['TRF23','TRF24','LAV','BEE']],['P07',['TRF23','TRF24','LAV','BEE']],['P08',['TRF23','TRF24','LAV','BEE']],['P09',['TRF23','TRF24','LAV','BEE']],['P10',['TRF23','TRF24','LAV','BEE']],['P11',['TRF23','TRF24','LAV','BEE']],['P12',['TRF23','TRF24','LAV','BEE']],['P13',['TRF23','TRF24','LAV','BEE']],['P14',['TRF23','TRF24','LAV','BEE']],['P15',['TRF23','LAV','BEE']],['P16',['TRF23','LAV','BEE']],['P17',['TRF23','LAV','BEE']],['P18',['TRF23','LAV','BEE']],['P19',['TRF23','LAV','BEE']],['P20',['TRF23','LAV','BEE']],['P21',['TRF23','LAV','BEE']],['P22',['TRF24','LAV','BEE']],['P23',['TRF24','LAV','BEE']],['P24',['TRF24','LAV','BEE']],['P25',['TRF24','LAV','BEE']],['P26',['TRF23','TRF24','BEE']],['P27',['TRF23','TRF24','BEE']]].forEach(d=>pieces.push({name:d[0],gamme:d[1]}));
+  }else if(id==='flux41'){
+    postes=['TRF38','TRF48'];
+    for(let i=1;i<=8;i++)pieces.push({name:`P${String(i).padStart(2,'0')}`,gamme:['TRF38','TRF48']});
+    pieces.push({name:'P09',gamme:['TRF38']},{name:'P10',gamme:['TRF48']});
+  }else if(id==='flux1'){
+    postes=['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23'];
+    [['P01',['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23']],['P02',['TRF19','TRF27','LAV05','PUS06','BEE30','TOU23']],['P03',['TRF19','TRF27','LAV05','BEE30','TOU23']],['P04',['TRF19','TRF27','LAV05','BEE30']],['P05',['TRF27','LAV05','PUS06','BEE30','TOU23']],['P06',['TRF19','LAV05','PUS06','TOU23']],['P07',['TRF19','TRF27','PUS06','BEE30']]].forEach(d=>pieces.push({name:d[0],gamme:d[1]}));
   }
-  currentGamme = [];
-  renderPostes(); updateSelect(); renderPieces(); renderGammePreview();
-  goTab(0);
-  setTimeout(() => goTab(1), 100);
+  renderPostes();updateSelect();renderPieces();renderGamme();updateCounts();
+  goTab(0);setTimeout(()=>goTab(1),100);
 }
 
-// ============================================================
+// ════════════════════════════════════════
 // ALGO KING
-// ============================================================
-function buildIncidenceMatrix() {
-  return postes.map(p =>
-    pieces.map(pc => pc.gamme.includes(p) ? 1 : 0)
-  );
-}
-
-function kingAlgorithm(mat0, mNames0, pNames0) {
-  let mat = mat0.map(r => [...r]);
-  let mNames = [...mNames0], pNames = [...pNames0];
-  for (let iter = 0; iter < 12; iter++) {
-    const nm = mat.length, np = mat[0].length;
-    const pw2m = Array.from({length:nm}, (_,i) => Math.pow(2, i));
-    const scoreP = Array(np).fill(0);
-    for (let j=0;j<np;j++) for (let i=0;i<nm;i++) scoreP[j] += pw2m[i] * mat[i][j];
-    const ordP = [...Array(np).keys()].sort((a,b) => scoreP[a]-scoreP[b]);
-    mat = mat.map(r => ordP.map(j => r[j]));
-    pNames = ordP.map(j => pNames[j]);
-    const pw2p = Array.from({length:np}, (_,j) => Math.pow(2, j));
-    const scoreM = Array(nm).fill(0);
-    for (let i=0;i<nm;i++) for (let j=0;j<np;j++) scoreM[i] += pw2p[j] * mat[i][j];
-    const ordM = [...Array(nm).keys()].sort((a,b) => scoreM[a]-scoreM[b]);
-    mat = ordM.map(i => mat[i]);
-    mNames = ordM.map(i => mNames[i]);
+// ════════════════════════════════════════
+function buildMatrix(){return postes.map(p=>pieces.map(pc=>pc.gamme.includes(p)?1:0));}
+function kingAlgo(mat0,mn0,pn0){
+  let mat=mat0.map(r=>[...r]),mn=[...mn0],pn=[...pn0];
+  for(let it=0;it<12;it++){
+    const nm=mat.length,np=mat[0].length;
+    const pw2m=Array.from({length:nm},(_,i)=>Math.pow(2,i));
+    const sp=Array(np).fill(0);
+    for(let j=0;j<np;j++)for(let i=0;i<nm;i++)sp[j]+=pw2m[i]*mat[i][j];
+    const op=[...Array(np).keys()].sort((a,b)=>sp[a]-sp[b]);
+    mat=mat.map(r=>op.map(j=>r[j]));pn=op.map(j=>pn[j]);
+    const pw2p=Array.from({length:np},(_,j)=>Math.pow(2,j));
+    const sm=Array(nm).fill(0);
+    for(let i=0;i<nm;i++)for(let j=0;j<np;j++)sm[i]+=pw2p[j]*mat[i][j];
+    const om=[...Array(nm).keys()].sort((a,b)=>sm[a]-sm[b]);
+    mat=om.map(i=>mat[i]);mn=om.map(i=>mn[i]);
   }
-  return {mat, mNames, pNames};
+  return{mat,mn,pn};
 }
-
-function detectGroups(mat) {
-  const np = mat[0].length;
-  const groups = [];
-  let cStart = 0;
-  while (cStart < np) {
-    let cEnd = cStart;
-    const rows = new Set();
-    mat.forEach((r,i) => { if (r[cStart]) rows.add(i); });
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (let j = cEnd+1; j < np; j++) {
-        let shared = false;
-        mat.forEach((r,i) => { if (rows.has(i) && r[j]) shared = true; });
-        if (shared) {
-          mat.forEach((r,i) => { if (r[j]) rows.add(i); });
-          cEnd = j; changed = true;
-        }
-      }
-    }
-    groups.push({cStart, cEnd, rows: [...rows].sort((a,b)=>a-b)});
-    cStart = cEnd + 1;
+function detectGroups(mat){
+  const np=mat[0].length,groups=[];let cS=0;
+  while(cS<np){
+    let cE=cS;const rows=new Set();
+    mat.forEach((r,i)=>{if(r[cS])rows.add(i);});
+    let ch=true;
+    while(ch){ch=false;for(let j=cE+1;j<np;j++){let sh=false;mat.forEach((r,i)=>{if(rows.has(i)&&r[j])sh=true;});if(sh){mat.forEach((r,i)=>{if(r[j])rows.add(i);});cE=j;ch=true;}}}
+    groups.push({cS,cE,rows:[...rows].sort((a,b)=>a-b)});cS=cE+1;
   }
   return groups;
 }
 
-function computeKing() {
-  if (postes.length===0 || pieces.length===0) {
-    alert('Ajoutez des postes et des pièces avant de calculer.');
-    return;
-  }
-  const mat0 = buildIncidenceMatrix();
-  const {mat, mNames, pNames} = kingAlgorithm(mat0, postes, pieces.map(p=>p.name));
-  const groups = detectGroups(mat);
-  window._king = {mat, mNames, pNames, groups};
+function computeKing(){
+  if(!postes.length||!pieces.length){alert('Ajoutez des postes et des pièces avant de calculer.');return;}
+  const mat0=buildMatrix();
+  const{mat,mn,pn}=kingAlgo(mat0,postes,pieces.map(p=>p.name));
+  const groups=detectGroups(mat);
+  _king={mat,mn,pn,groups};
+  markDone(0);markDone(1);
 
-  const GCOLS = ['#1D9E75','#534AB7','#D85A30','#378ADD','#BA7517','#993556'];
-
-  let html = `<div class="stats-grid">
-    <div class="stat-card"><div class="stat-val">${postes.length}</div><div class="stat-lbl">Postes</div></div>
-    <div class="stat-card"><div class="stat-val">${pieces.length}</div><div class="stat-lbl">Pièces</div></div>
-    <div class="stat-card"><div class="stat-val">${groups.length}</div><div class="stat-lbl">Îlots détectés</div></div>
-  </div>`;
-
-  html += `<div class="alert alert-ok">Matrice de King calculée — ${groups.length} îlot(s) identifié(s) par l'algorithme de tri binaire.</div>`;
+  let html=`<div class="stat-row">
+    <div class="stat s-red"><div class="stat-val">${postes.length}</div><div class="stat-lbl">Postes / machines</div></div>
+    <div class="stat s-blue"><div class="stat-val">${pieces.length}</div><div class="stat-lbl">Pièces analysées</div></div>
+    <div class="stat s-green"><div class="stat-val">${groups.length}</div><div class="stat-lbl">Îlots détectés</div></div>
+  </div>
+  <div class="alert alert-ok">✓ Matrice réordonnée — <strong>${groups.length} îlot(s)</strong> identifié(s) par tri binaire (12 itérations).</div>`;
 
   // MATRIX
-  html += `<div class="card"><div class="card-title">Matrice d'incidence réordonnée</div><div class="matrix-wrap"><table class="matrix"><thead><tr><th class="row-h">Machine \\ Pièce</th>`;
-  pNames.forEach((p,j) => {
-    const gi = groups.findIndex(g => j>=g.cStart && j<=g.cEnd);
-    const col = gi>=0 ? GCOLS[gi%GCOLS.length] : '';
-    html += `<th style="font-size:10px;${col?'color:'+col:''}">${p}</th>`;
+  html+=`<div class="card accent-teal"><div class="card-title">Matrice d'incidence réordonnée <span class="card-title-tag">KING</span></div><div class="mx-scroll"><table class="mx"><thead><tr><th class="rh">M \\ P</th>`;
+  pn.forEach((p,j)=>{const gi=groups.findIndex(g=>j>=g.cS&&j<=g.cE);const col=gi>=0?GCOLS[gi%GCOLS.length]:'';html+=`<th style="${col?'color:'+col:''}">${p}</th>`;});
+  html+=`</tr></thead><tbody>`;
+  mn.forEach((m,i)=>{
+    const mi=postes.indexOf(m),col=COLORS[mi%COLORS.length];
+    html+=`<tr><th class="rh"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${m}</th>`;
+    mat[i].forEach((v,j)=>{const gi=groups.findIndex(g=>j>=g.cS&&j<=g.cE);const gc=gi>=0?GCOLS[gi%GCOLS.length]:'#18a86b';html+=v?`<td class="cx" style="background:${gc}cc">1</td>`:`<td class="c0"></td>`;});
+    html+=`</tr>`;
   });
-  html += `</tr></thead><tbody>`;
-  mNames.forEach((m,i) => {
-    const mi = postes.indexOf(m);
-    const col = COLORS[mi%COLORS.length];
-    html += `<tr><th class="row-h"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:6px;vertical-align:middle"></span>${m}</th>`;
-    mat[i].forEach((v,j) => {
-      const gi = groups.findIndex(g => j>=g.cStart && j<=g.cEnd);
-      const gc = gi>=0 ? GCOLS[gi%GCOLS.length] : '#1D9E75';
-      html += v
-        ? `<td class="cell-ilot" style="background:${gc}cc">1</td>`
-        : `<td class="cell-0"></td>`;
-    });
-    html += `</tr>`;
-  });
-  html += `</tbody></table></div></div>`;
+  html+=`</tbody></table></div></div>`;
 
   // ILOTS
-  html += `<div class="card"><div class="card-title">Îlots de fabrication identifiés</div>`;
-  groups.forEach((g,gi) => {
-    const machines = g.rows.map(r => mNames[r]);
-    const pList = pNames.slice(g.cStart, g.cEnd+1);
-    const col = GCOLS[gi%GCOLS.length];
-    html += `<div class="ilot-card" style="border-left-color:${col}">
-      <div class="ilot-title" style="color:${col}">Îlot ${gi+1}</div>
-      <div class="ilot-detail">
-        <strong>Machines :</strong> ${machines.join(' — ')}<br>
-        <strong>Pièces :</strong> ${pList.join(', ')} <span style="color:var(--text3)">(${pList.length} pièces)</span>
-      </div>
+  html+=`<div class="card accent-teal"><div class="card-title">Îlots identifiés <span class="card-title-tag">RÉSULTATS</span></div>`;
+  groups.forEach((g,gi)=>{
+    const machines=g.rows.map(r=>mn[r]),pl=pn.slice(g.cS,g.cE+1),col=GCOLS[gi%GCOLS.length];
+    html+=`<div class="ilot" style="border-left-color:${col}">
+      <div class="ilot-num" style="background:${col}">I${gi+1}</div>
+      <div><div class="ilot-title" style="color:${col}">Îlot ${gi+1} — ${machines.join(' · ')}</div>
+      <div class="ilot-body"><strong>Machines :</strong> ${machines.join(', ')}<br><strong>Pièces (${pl.length}) :</strong> ${pl.join(', ')}</div></div>
     </div>`;
   });
-  html += `</div>`;
+  html+=`</div>`;
 
-  document.getElementById('king-result').innerHTML = html;
+  document.getElementById('king-result').innerHTML=html;
   goTab(2);
 }
 
-// ============================================================
+// ════════════════════════════════════════
 // ALGO CHAÎNONS
-// ============================================================
-function buildChainTable() {
-  const n = postes.length;
-  const tbl = Array.from({length:n}, () => Array(n).fill(0));
-  pieces.forEach(p => {
-    for (let k=0; k<p.gamme.length-1; k++) {
-      const a = postes.indexOf(p.gamme[k]);
-      const b = postes.indexOf(p.gamme[k+1]);
-      if (a>=0 && b>=0) tbl[a][b]++;
-    }
-  });
+// ════════════════════════════════════════
+function buildChain(){
+  const n=postes.length,tbl=Array.from({length:n},()=>Array(n).fill(0));
+  pieces.forEach(p=>{for(let k=0;k<p.gamme.length-1;k++){const a=postes.indexOf(p.gamme[k]),b=postes.indexOf(p.gamme[k+1]);if(a>=0&&b>=0)tbl[a][b]++;}});
   return tbl;
 }
-
-function buildSymMatrix(tbl) {
-  const n = postes.length;
-  const sym = Array.from({length:n}, () => Array(n).fill(0));
-  for (let i=0;i<n;i++) for (let j=0;j<n;j++) if (i!==j) sym[i][j] = tbl[i][j]+tbl[j][i];
+function buildSym(tbl){
+  const n=postes.length,sym=Array.from({length:n},()=>Array(n).fill(0));
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(i!==j)sym[i][j]=tbl[i][j]+tbl[j][i];
   return sym;
 }
-
-function optimiserPlacement(sym) {
-  const n = postes.length;
-  if (n===0) return {ordre:[], score:0};
-  const perms = arr => {
-    if (arr.length<=1) return [arr];
-    const r=[];
-    arr.forEach((x,i) => perms([...arr.slice(0,i),...arr.slice(i+1)]).forEach(p=>r.push([x,...p])));
-    return r;
-  };
-  const idxs = [...Array(n).keys()];
-  const allPerms = n<=7 ? perms(idxs) : [idxs];
-  let best=Infinity, bestOrdre=postes;
-  allPerms.forEach(perm => {
-    let score=0;
-    for (let i=0;i<n;i++) for (let j=i+1;j<n;j++) score+=sym[perm[i]][perm[j]]*Math.abs(i-j);
-    if (score<best) { best=score; bestOrdre=perm.map(i=>postes[i]); }
-  });
-  return {ordre:bestOrdre, score:best};
+function optimise(sym){
+  const n=postes.length;if(!n)return{ordre:[],score:0};
+  const perms=arr=>{if(arr.length<=1)return[arr];const r=[];arr.forEach((x,i)=>perms([...arr.slice(0,i),...arr.slice(i+1)]).forEach(p=>r.push([x,...p])));return r;};
+  const idxs=[...Array(n).keys()];
+  const all=n<=7?perms(idxs):[idxs];
+  let best=Infinity,bestO=postes;
+  all.forEach(perm=>{let s=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=sym[perm[i]][perm[j]]*Math.abs(i-j);if(s<best){best=s;bestO=perm.map(i=>postes[i]);}});
+  return{ordre:bestO,score:best};
 }
 
-function computeChainons() {
-  if (postes.length===0 || pieces.length===0) return;
-  const tbl = buildChainTable();
-  const sym = buildSymMatrix(tbl);
-  const nbC = {};
-  postes.forEach((p,i) => {
-    nbC[p] = postes.reduce((s,_,j) => j!==i ? s+sym[i][j] : s, 0);
-  });
-  const {ordre, score} = optimiserPlacement(sym);
-  window._chainons = {tbl, sym, nbC, ordre, score};
+function computeChainons(){
+  if(!postes.length||!pieces.length)return;
+  const tbl=buildChain(),sym=buildSym(tbl);
+  const nbC={};postes.forEach((p,i)=>{nbC[p]=postes.reduce((s,_,j)=>j!==i?s+sym[i][j]:s,0);});
+  const{ordre,score}=optimise(sym);
+  _ch={tbl,sym,nbC,ordre,score};
+  markDone(2);
 
-  const maxFlux = Math.max(1, ...postes.flatMap((_,i)=>postes.map((_,j)=>j>i?sym[i][j]:0)).filter(v=>v>0));
-
-  let html = `<div class="stats-grid">
-    ${ordre.map((p,k) => `<div class="stat-card">
-      <div class="stat-val" style="color:${COLORS[postes.indexOf(p)%COLORS.length]}">${nbC[p]}</div>
-      <div class="stat-lbl">${p} — rang ${k+1}</div>
-    </div>`).join('')}
-  </div>`;
-
-  // TABLE CHAÎNONS
+  const maxF=Math.max(1,...postes.flatMap((_,i)=>postes.map((_,j)=>j>i?sym[i][j]:0)).filter(v=>v>0));
   const chainList=[];
-  postes.forEach((p,i) => postes.forEach((q,j) => {
-    if (j>i && sym[i][j]>0) chainList.push({a:p,b:q,flux:sym[i][j],ab:tbl[i][j],ba:tbl[j][i]});
-  }));
+  postes.forEach((p,i)=>postes.forEach((q,j)=>{if(j>i&&sym[i][j]>0)chainList.push({a:p,b:q,flux:sym[i][j],ab:tbl[i][j],ba:tbl[j][i]});}));
   chainList.sort((x,y)=>y.flux-x.flux);
 
-  html += `<div class="card"><div class="card-title">Table des chaînons (indices de flux)</div>`;
-  chainList.forEach(c => {
-    const w = Math.round(c.flux/maxFlux*160);
-    html += `<div class="chainon-row">
-      <span class="chainon-name">${c.a} ↔ ${c.b}</span>
-      <span class="chainon-dirs">${c.ab} → &nbsp;/&nbsp; ${c.ba} ←</span>
-      <div class="flux-bar-wrap"><div class="flux-bar" style="width:${w}px"></div></div>
-      <span class="flux-val">${c.flux}</span>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // CLASSEMENT
-  html += `<div class="card"><div class="card-title">Classement des postes par nombre de chaînons</div>
-    <table class="rank"><thead><tr><th>Rang</th><th>Poste</th><th>Nb chaînons</th><th>Rôle</th></tr></thead><tbody>`;
-  ordre.forEach((p,k) => {
-    html += `<tr>
-      <td><strong>#${k+1}</strong></td>
-      <td><span class="chip" style="background:${COLORS[postes.indexOf(p)%COLORS.length]}">${p}</span></td>
-      <td>${nbC[p]}</td>
-      <td>${k===0?'Poste central (le plus connecté)':k===ordre.length-1?'Poste périphérique':''}</td>
-    </tr>`;
-  });
-  html += `</tbody></table></div>`;
-
-  // SCHEMA EN U
-  html += `<div class="card"><div class="card-title">Implantation optimale — schéma en U</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
-      Ordre optimal : ${ordre.join(' → ')} &nbsp;&nbsp;|&nbsp;&nbsp; Score flux×distance : ${score}
-    </div>
-    <canvas id="u-canvas" height="280"></canvas>
+  let html=`<div class="stat-row">
+    ${ordre.map((p,k)=>`<div class="stat" style="border-bottom:3px solid ${COLORS[postes.indexOf(p)%COLORS.length]}"><div class="stat-val" style="color:${COLORS[postes.indexOf(p)%COLORS.length]}">${nbC[p]}</div><div class="stat-lbl">${p} — rang #${k+1}</div></div>`).join('')}
   </div>`;
 
-  document.getElementById('chainons-result').innerHTML = html;
+  html+=`<div class="card accent-blue"><div class="card-title">Table des chaînons <span class="card-title-tag">FLUX</span></div>`;
+  chainList.forEach(c=>{html+=`<div class="ch-row"><span class="ch-name">${c.a} ↔ ${c.b}</span><span class="ch-dirs">${c.ab}→ / ${c.ba}←</span><div class="ch-bar-wrap"><div class="ch-bar" style="width:${Math.round(c.flux/maxF*200)}px"></div></div><span class="ch-val">${c.flux}</span></div>`;});
+  html+=`</div>`;
+
+  html+=`<div class="card accent-blue"><div class="card-title">Classement des postes <span class="card-title-tag">RANG</span></div><table class="rank"><thead><tr><th>Rang</th><th>Poste</th><th>Chaînons</th><th>Statut</th></tr></thead><tbody>`;
+  ordre.forEach((p,k)=>{html+=`<tr><td class="rank-num">#${k+1}</td><td><span class="chip" style="background:${COLORS[postes.indexOf(p)%COLORS.length]}">${p}</span></td><td style="font-weight:800;font-family:var(--mono)">${nbC[p]}</td><td style="font-size:11px;color:var(--text-muted)">${k===0?'Poste central':k===ordre.length-1?'Poste périphérique':''}</td></tr>`;});
+  html+=`</tbody></table></div>`;
+
+  html+=`<div class="card accent-blue"><div class="card-title">Implantation optimale — Schéma en U <span class="card-title-tag">LAYOUT</span></div><p style="font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-bottom:16px">Ordre : ${ordre.join(' → ')} &nbsp;|&nbsp; Score : ${score}</p><canvas id="u-canvas" height="300"></canvas></div>`;
+
+  document.getElementById('chainons-result').innerHTML=html;
+  markDone(3);
   goTab(3);
-  setTimeout(() => drawU(ordre, sym, nbC), 80);
+  setTimeout(()=>{drawU(ordre,sym,nbC);buildDashboard();},80);
 }
 
-// ============================================================
+// ════════════════════════════════════════
 // SCHÉMA EN U
-// ============================================================
-function drawU(ordre, sym, nbC) {
-  const canvas = document.getElementById('u-canvas');
-  if (!canvas) return;
-  const W = canvas.offsetWidth || 860;
-  const H = 280;
-  canvas.width = W * window.devicePixelRatio;
-  canvas.height = H * window.devicePixelRatio;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+// ════════════════════════════════════════
+function drawU(ordre,sym,nbC){
+  const canvas=document.getElementById('u-canvas');
+  if(!canvas)return;
+  const W=canvas.offsetWidth||860,H=300;
+  canvas.width=W*devicePixelRatio;canvas.height=H*devicePixelRatio;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
 
-  const n = ordre.length;
-  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
-  const bgColor = isDark ? '#1a1a18' : '#f9f9f7';
-  const textColor = isDark ? '#c8c8c0' : '#1a1a18';
-  const mutedColor = isDark ? '#6a6a62' : '#9a9a93';
+  // background grid
+  ctx.fillStyle='#f5f2ec';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#c8c3b5';ctx.lineWidth=.5;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0,0,W,H);
+  const n=ordre.length,top=Math.ceil(n/2),bot=n-top;
+  const maxC=Math.max(top,bot);
+  const bw=Math.min(110,Math.floor((W-60)/maxC)-12);
+  const bh=58,gap=Math.min(28,(W-40-maxC*bw)/Math.max(1,maxC-1));
+  const startX=(W-(maxC*bw+(maxC-1)*gap))/2+bw/2;
+  const pos={};
+  for(let i=0;i<top;i++)pos[ordre[i]]={x:startX+i*(bw+gap),y:62+bh/2};
+  for(let i=0;i<bot;i++)pos[ordre[top+i]]={x:startX+(bot-1-i)*(bw+gap),y:208+bh/2};
 
-  const top = Math.ceil(n/2), bot = n-top;
-  const maxCols = Math.max(top, bot);
-  const bw = Math.min(100, Math.floor((W-60) / (maxCols + 0.5)));
-  const bh = 52;
-  const gap = Math.min(30, (W - 40 - maxCols*bw) / Math.max(1, maxCols-1));
-  const startX = (W - (maxCols*bw + (maxCols-1)*gap)) / 2 + bw/2;
+  const gF=(a,b)=>{const i=postes.indexOf(a),j=postes.indexOf(b);if(i<0||j<0)return 0;return sym[Math.min(i,j)][Math.max(i,j)];};
+  const maxF=Math.max(1,...ordre.flatMap((a,ai)=>ordre.slice(ai+1).map(b=>gF(a,b))));
 
-  const positions = {};
-
-  // Top row (left → right)
-  for (let i=0; i<top; i++) {
-    positions[ordre[i]] = {x: startX + i*(bw+gap), y: 52 + bh/2};
-  }
-  // Bottom row (right → left so the U closes)
-  for (let i=0; i<bot; i++) {
-    const p = ordre[top+i];
-    const col = (bot-1-i);
-    positions[p] = {x: startX + col*(bw+gap), y: 195 + bh/2};
-  }
-
-  const getFlux = (a,b) => {
-    const i=postes.indexOf(a), j=postes.indexOf(b);
-    if (i<0||j<0) return 0;
-    return sym[Math.min(i,j)][Math.max(i,j)];
-  };
-  const maxF = Math.max(1,...ordre.flatMap((a,ai)=>ordre.slice(ai+1).map(b=>getFlux(a,b))));
-
-  // Flèches entre postes consécutifs
-  for (let k=0; k<n-1; k++) {
-    const a=ordre[k], b=ordre[k+1];
-    const pa=positions[a], pb=positions[b];
-    const fv=getFlux(a,b);
-    const lw = 1.5 + (fv/maxF)*3.5;
-
+  // connexions
+  for(let k=0;k<n-1;k++){
+    const a=ordre[k],b=ordre[k+1],pa=pos[a],pb=pos[b],fv=gF(a,b);
+    const lw=1.5+(fv/maxF)*4.5;
     ctx.beginPath();
-    if (Math.abs(pa.y - pb.y) > 50) {
-      // virage en U (haut → bas)
-      const mx = (pa.x + pb.x)/2;
-      ctx.moveTo(pa.x, pa.y);
-      ctx.bezierCurveTo(pa.x, pa.y+55, pb.x, pb.y-55, pb.x, pb.y);
-    } else {
-      ctx.moveTo(pa.x, pa.y);
-      ctx.lineTo(pb.x, pb.y);
-    }
-    ctx.strokeStyle = '#534AB7';
-    ctx.lineWidth = lw;
-    ctx.globalAlpha = 0.55 + (fv/maxF)*0.4;
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-
-    // label flux
-    const mx2 = (pa.x+pb.x)/2;
-    const my2 = Math.abs(pa.y-pb.y)>50 ? (pa.y+pb.y)/2 : pa.y - 14;
-    ctx.fillStyle = '#534AB7';
-    ctx.font = `500 11px -apple-system,sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(fv, mx2, my2);
+    if(Math.abs(pa.y-pb.y)>80){ctx.moveTo(pa.x,pa.y);ctx.bezierCurveTo(pa.x,pa.y+65,pb.x,pb.y-65,pb.x,pb.y);}
+    else{ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);}
+    ctx.strokeStyle='#1c6be8';ctx.lineWidth=lw;ctx.globalAlpha=0.35+(fv/maxF)*0.55;ctx.stroke();ctx.globalAlpha=1;
+    const mx=(pa.x+pb.x)/2,my=Math.abs(pa.y-pb.y)>80?(pa.y+pb.y)/2:pa.y-18;
+    ctx.fillStyle='#1c6be8';ctx.font='700 11px Space Mono,monospace';ctx.textAlign='center';ctx.fillText(fv,mx,my);
   }
 
-  // Boîtes
-  ordre.forEach((p, k) => {
-    const pos = positions[p];
-    const ci = COLORS[postes.indexOf(p) % COLORS.length];
-    const x = pos.x - bw/2, y = pos.y - bh/2;
-
-    // shadow subtle
-    ctx.fillStyle = isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.06)';
-    roundRect(ctx, x+2, y+2, bw, bh, 8);
-    ctx.fill();
-
-    // box
-    ctx.fillStyle = ci;
-    roundRect(ctx, x, y, bw, bh, 8);
-    ctx.fill();
-
-    // text
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `600 13px -apple-system,sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(p, pos.x, pos.y + 1);
-    ctx.font = `400 10px -apple-system,sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.fillText(`C=${nbC[p]}`, pos.x, pos.y + 15);
-    ctx.fillText(`Poste ${k+1}`, pos.x, pos.y + 26);
+  // boxes
+  ordre.forEach((p,k)=>{
+    const{x,y}=pos[p],ci=COLORS[postes.indexOf(p)%COLORS.length];
+    const bx=x-bw/2,by=y-bh/2;
+    ctx.fillStyle='rgba(0,0,0,0.1)';rr(ctx,bx+2,by+4,bw,bh,8);ctx.fill();
+    ctx.fillStyle=ci;rr(ctx,bx,by,bw,bh,8);ctx.fill();
+    // accent line top
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.fillRect(bx+8,by,bw-16,3);
+    ctx.fillStyle='#fff';ctx.font='700 13px Syne,sans-serif';ctx.textAlign='center';ctx.fillText(p,x,y+3);
+    ctx.font='400 10px Space Mono,monospace';ctx.fillStyle='rgba(255,255,255,.65)';
+    ctx.fillText(`C=${nbC[p]}`,x,y+16);
+    ctx.fillText(`#${k+1}`,x,y+27);
   });
 
-  // Flèche flux principal en bas
-  const arrowY = H - 16;
-  ctx.beginPath();
-  ctx.moveTo(30, arrowY);
-  ctx.lineTo(W-30, arrowY);
-  ctx.strokeStyle = '#1D9E75';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([5,4]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = '#1D9E75';
-  ctx.beginPath();
-  ctx.moveTo(W-28, arrowY);
-  ctx.lineTo(W-38, arrowY-4);
-  ctx.lineTo(W-38, arrowY+4);
-  ctx.closePath();
-  ctx.fill();
-  ctx.font = `400 11px -apple-system,sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#1D9E75';
-  ctx.fillText('Flux de production', W/2, arrowY - 5);
-
-  // Légende ENTRÉE / SORTIE
-  if (ordre.length >= 2) {
-    const pe = positions[ordre[0]];
-    const ps = positions[ordre[n-1]];
-    ctx.font = `500 10px -apple-system,sans-serif`;
-    ctx.fillStyle = '#1D9E75';
-    ctx.textAlign = 'center';
-    ctx.fillText('ENTRÉE', pe.x, pe.y - bh/2 - 6);
-    ctx.fillStyle = '#D85A30';
-    ctx.fillText('SORTIE', ps.x, ps.y - bh/2 - 6);
+  // labels
+  if(n>=2){
+    const pe=pos[ordre[0]],ps=pos[ordre[n-1]];
+    ctx.font='700 10px Space Mono,monospace';ctx.textAlign='center';
+    ctx.fillStyle='#18a86b';ctx.fillText('▼ ENTRÉE',pe.x,pe.y-bh/2-10);
+    ctx.fillStyle='#e8401c';ctx.fillText('▼ SORTIE',ps.x,ps.y-bh/2-10);
   }
+
+  // flux arrow
+  const ay=H-14;
+  ctx.beginPath();ctx.moveTo(30,ay);ctx.lineTo(W-34,ay);
+  ctx.strokeStyle='#18a86b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#18a86b';ctx.beginPath();ctx.moveTo(W-30,ay);ctx.lineTo(W-40,ay-5);ctx.lineTo(W-40,ay+5);ctx.closePath();ctx.fill();
+  ctx.font='600 11px Syne,sans-serif';ctx.textAlign='center';ctx.fillStyle='#18a86b';ctx.fillText('Flux de production',W/2,ay-6);
+}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+// ════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════
+function buildDashboard(){
+  if(!_king||!_ch)return;
+  const{groups,mn,pn}=_king;
+  const{ordre,nbC,score,sym}=_ch;
+  markDone(4);
+
+  const chainList=[];
+  postes.forEach((p,i)=>postes.forEach((q,j)=>{if(j>i&&sym[i][j]>0)chainList.push({a:p,b:q,flux:sym[i][j]});}));
+  chainList.sort((x,y)=>y.flux-x.flux);
+  const topPoste=ordre[0],topChain=chainList[0]||null;
+
+  let html=`<div class="dash-hero">
+    <div class="dash-eyebrow">Analyse complète</div>
+    <h2>Résultats King &amp; Chaînons</h2>
+    <p>${postes.length} postes · ${pieces.length} pièces · ${groups.length} îlot(s) · Score ${score}</p>
+  </div>`;
+
+  html+=`<div class="stat-row">
+    <div class="stat s-red"><div class="stat-val">${postes.length}</div><div class="stat-lbl">Postes</div></div>
+    <div class="stat s-blue"><div class="stat-val">${pieces.length}</div><div class="stat-lbl">Pièces</div></div>
+    <div class="stat s-green"><div class="stat-val">${groups.length}</div><div class="stat-lbl">Îlots</div></div>
+    <div class="stat s-gold"><div class="stat-val">${score}</div><div class="stat-lbl">Score d'impl.</div></div>
+  </div>`;
+
+  html+=`<div class="result-grid">
+    <div class="rcard">
+      <h3>Ordre d'implantation optimal</h3>
+      ${ordre.map((p,k)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-muted);min-width:22px">#${k+1}</span>
+        <span class="chip" style="background:${COLORS[postes.indexOf(p)%COLORS.length]}">${p}</span>
+        <div style="flex:1;height:4px;background:var(--paper3);border-radius:2px">
+          <div style="width:${Math.round(nbC[p]/Math.max(1,...Object.values(nbC))*100)}%;height:4px;background:${COLORS[postes.indexOf(p)%COLORS.length]};border-radius:2px"></div>
+        </div>
+        <span style="font-family:var(--mono);font-size:12px;font-weight:700;min-width:24px;text-align:right">${nbC[p]}</span>
+      </div>`).join('')}
+    </div>
+    <div class="rcard">
+      <h3>Îlots de fabrication</h3>
+      ${groups.map((g,gi)=>{
+        const machines=g.rows.map(r=>mn[r]),pl=pn.slice(g.cS,g.cE+1),col=GCOLS[gi%GCOLS.length];
+        return`<div style="padding:10px 12px;border-radius:6px;margin-bottom:8px;border-left:3px solid ${col};background:var(--paper3)">
+          <div style="font-weight:800;font-size:12px;color:${col};margin-bottom:3px;font-family:var(--mono)">ÎLOT ${gi+1}</div>
+          <div style="font-size:12px;color:var(--text-muted)">${machines.join(' · ')} <span style="opacity:.6">(${pl.length} pièces)</span></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  html+=`<div class="card"><div class="card-title">Points clés <span class="card-title-tag">KPI</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="padding:16px;background:rgba(24,168,107,.07);border-radius:8px;border-left:4px solid var(--accent3)">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--accent3);margin-bottom:8px;text-transform:uppercase">Poste central</div>
+        <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:var(--accent3)">${topPoste}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${nbC[topPoste]} chaînons — le plus connecté</div>
+      </div>
+      ${topChain?`<div style="padding:16px;background:rgba(28,107,232,.07);border-radius:8px;border-left:4px solid var(--accent2)">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--accent2);margin-bottom:8px;text-transform:uppercase">Flux dominant</div>
+        <div style="font-size:18px;font-weight:800;font-family:var(--mono);color:var(--accent2)">${topChain.a} ↔ ${topChain.b}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${topChain.flux} liaisons — lien le plus fort</div>
+      </div>`:''}
+    </div>
+  </div>`;
+
+  document.getElementById('dashboard-result').innerHTML=html;
 }
 
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.lineTo(x+w-r, y);
-  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-  ctx.lineTo(x+w, y+h-r);
-  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-  ctx.lineTo(x+r, y+h);
-  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-  ctx.lineTo(x, y+r);
-  ctx.quadraticCurveTo(x, y, x+r, y);
-  ctx.closePath();
+// ════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════
+function exportCSV(){
+  if(!_ch){alert('Effectuez d\'abord tous les calculs.');return;}
+  const{ordre,nbC,score,sym,tbl}=_ch;
+  let csv='\uFEFFsep=;\nRÉSULTATS KING & CHAÎNONS\n\nCLASSEMENT\nRang;Poste;Nb chaînons\n';
+  ordre.forEach((p,i)=>csv+=`${i+1};${p};${nbC[p]}\n`);
+  csv+=`\nOrdre optimal;${ordre.join(' → ')}\nScore;${score}\n\nCHAÎNONS\nA;B;Total;A→B;B→A\n`;
+  postes.forEach((p,i)=>postes.forEach((q,j)=>{if(j>i&&sym[i][j]>0)csv+=`${p};${q};${sym[i][j]};${tbl[i][j]};${tbl[j][i]}\n`;}));
+  if(_king){
+    csv+='\nÎLOTS\nÎlot;Machines;Nb pièces\n';
+    _king.groups.forEach((g,gi)=>{const m=g.rows.map(r=>_king.mn[r]);csv+=`${gi+1};${m.join(' - ')};${_king.pn.slice(g.cS,g.cE+1).length}\n`;});
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='king_chainons.csv';a.click();
 }
 
-// ============================================================
-// EXPORT CSV
-// ============================================================
-function exportCSV() {
-  if (!window._chainons) { alert('Calculez d\'abord les résultats.'); return; }
-  const {ordre, nbC, score, sym, tbl} = window._chainons;
-  let csv = 'sep=;\n';
-  csv += 'CLASSEMENT DES POSTES\n';
-  csv += 'Rang;Poste;Nb chaînons\n';
-  ordre.forEach((p,i) => csv += `${i+1};${p};${nbC[p]}\n`);
-  csv += `\nOrdre optimal;${ordre.join(' → ')}\n`;
-  csv += `Score flux×distance;${score}\n\n`;
-  csv += 'TABLE DES CHAÎNONS\n';
-  csv += 'Poste A;Poste B;Flux total;A→B;B→A\n';
-  postes.forEach((p,i) => postes.forEach((q,j) => {
-    if (j>i && sym[i][j]>0) csv += `${p};${q};${sym[i][j]};${tbl[i][j]};${tbl[j][i]}\n`;
-  }));
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'resultats_king_chainons.csv';
-  a.click();
-}
-
-// ============================================================
-// INIT
-// ============================================================
 updateSelect();
 </script>
 </body>
