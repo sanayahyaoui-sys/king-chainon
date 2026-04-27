@@ -964,21 +964,73 @@ function buildSym(tbl){
   for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(i!==j)sym[i][j]=tbl[i][j]+tbl[j][i];
   return sym;
 }
+function scoreOrdre(perm,sym){
+  let s=0;const n=perm.length;
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=sym[perm[i]][perm[j]]*Math.abs(i-j);
+  return s;
+}
+
 function optimise(sym){
   const n=postes.length;if(!n)return{ordre:[],score:0};
-  const perms=arr=>{if(arr.length<=1)return[arr];const r=[];arr.forEach((x,i)=>perms([...arr.slice(0,i),...arr.slice(i+1)]).forEach(p=>r.push([x,...p])));return r;};
   const idxs=[...Array(n).keys()];
-  let best=Infinity,bestO=postes;
-  if(n<=7){
-    perms(idxs).forEach(perm=>{let s=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=sym[perm[i]][perm[j]]*Math.abs(i-j);if(s<best){best=s;bestO=perm.map(i=>postes[i]);}});
-  }else{
-    for(let t=0;t<20;t++){
-      const perm=[...idxs].sort(()=>Math.random()-.5);
-      let s=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=sym[perm[i]][perm[j]]*Math.abs(i-j);
-      if(s<best){best=s;bestO=perm.map(i=>postes[i]);}
+
+  // Pour n<=8 : permutations exactes
+  if(n<=8){
+    const perms=arr=>{if(arr.length<=1)return[arr];const r=[];arr.forEach((x,i)=>perms([...arr.slice(0,i),...arr.slice(i+1)]).forEach(p=>r.push([x,...p])));return r;};
+    let best=Infinity,bestPerm=idxs;
+    perms(idxs).forEach(perm=>{const s=scoreOrdre(perm,sym);if(s<best){best=s;bestPerm=perm;}});
+    return{ordre:bestPerm.map(i=>postes[i]),score:best};
+  }
+
+  // Pour n>8 : algorithme greedy + amélioration 2-opt
+  // 1. Initialisation greedy : trier par nombre de chaînons décroissant
+  const nbCLocal=idxs.map(i=>idxs.reduce((s,j)=>j!==i?s+sym[i][j]:s,0));
+  let bestPerm=[...idxs].sort((a,b)=>nbCLocal[b]-nbCLocal[a]);
+  let best=scoreOrdre(bestPerm,sym);
+
+  // 2. Plusieurs starts aléatoires
+  for(let t=0;t<30;t++){
+    let perm=[...idxs].sort(()=>Math.random()-.5);
+    perm=twoOpt(perm,sym);
+    const s=scoreOrdre(perm,sym);
+    if(s<best){best=s;bestPerm=perm;}
+  }
+
+  // 3. 2-opt sur le meilleur résultat
+  bestPerm=twoOpt(bestPerm,sym);
+  best=scoreOrdre(bestPerm,sym);
+
+  return{ordre:bestPerm.map(i=>postes[i]),score:best};
+}
+
+function twoOpt(perm,sym){
+  const n=perm.length;
+  let improved=true;
+  let current=[...perm];
+  let currentScore=scoreOrdre(current,sym);
+  while(improved){
+    improved=false;
+    for(let i=0;i<n-1;i++){
+      for(let j=i+1;j<n;j++){
+        // Swap i et j
+        const next=[...current];
+        next[i]=current[j];next[j]=current[i];
+        const s=scoreOrdre(next,sym);
+        if(s<currentScore){
+          current=next;currentScore=s;improved=true;
+        }
+        // Inversion du segment [i..j]
+        const next2=[...current];
+        let l=i,r=j;
+        while(l<r){const tmp=next2[l];next2[l]=next2[r];next2[r]=tmp;l++;r--;}
+        const s2=scoreOrdre(next2,sym);
+        if(s2<currentScore){
+          current=next2;currentScore=s2;improved=true;
+        }
+      }
     }
   }
-  return{ordre:bestO,score:best};
+  return current;
 }
 
 function computeChainons(){
