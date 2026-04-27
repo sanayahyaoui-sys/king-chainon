@@ -1024,55 +1024,130 @@ function animateU(ordre,sym,nbC){
   if(!canvas)return;
   if(_animFrame)cancelAnimationFrame(_animFrame);
 
-  const W=canvas.offsetWidth||860,H=340;
+  const W=canvas.offsetWidth||860,H=400;
   canvas.width=W*devicePixelRatio;canvas.height=H*devicePixelRatio;
   canvas.style.width=W+'px';canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
 
-  const n=ordre.length,top=Math.ceil(n/2),bot=n-top;
-  const maxC=Math.max(top,bot);
-  const bw=Math.min(112,Math.floor((W-60)/maxC)-10);
-  const bh=60,gap=Math.min(30,(W-40-maxC*bw)/Math.max(1,maxC-1));
-  const startX=(W-(maxC*bw+(maxC-1)*gap))/2+bw/2;
-  const pos={};
-  for(let i=0;i<top;i++)pos[ordre[i]]={x:startX+i*(bw+gap),y:72+bh/2};
-  for(let i=0;i<bot;i++)pos[ordre[top+i]]={x:startX+(bot-1-i)*(bw+gap),y:232+bh/2};
+  const n=postes.length;
+  const bw=100,bh=54;
 
   const gF=(a,b)=>{const i=postes.indexOf(a),j=postes.indexOf(b);if(i<0||j<0)return 0;return sym[Math.min(i,j)][Math.max(i,j)];};
-  const maxF=Math.max(1,...ordre.flatMap((a,ai)=>ordre.slice(ai+1).map(b=>gF(a,b))));
+  const maxF=Math.max(1,...postes.flatMap((a,ai)=>postes.slice(ai+1).map(b=>gF(a,b))));
 
-  // Particules de flux
-  const particles=[];
-  for(let k=0;k<n-1;k++){
-    const a=ordre[k],b=ordre[k+1],fv=gF(a,b);
-    const count=Math.max(1,Math.round(fv/maxF*6));
-    for(let p=0;p<count;p++){
-      particles.push({
-        segA:a,segB:b,t:Math.random(),
-        speed:0.004+Math.random()*0.004,
-        size:2+fv/maxF*3,
-        color:COLORS[(postes.indexOf(a))%COLORS.length],
-        alpha:0.6+Math.random()*0.4
+  // ── PLACEMENT RADIAL FORCE-DIRECTED ──
+  // Le poste avec le + de chaînons est au centre
+  // Les autres sont placés autour à distance inversement proportionnelle au flux
+  const pos={};
+  const cx=W/2, cy=H/2;
+
+  // Trier par nbC décroissant
+  const sorted=[...postes].sort((a,b)=>(nbC[b]||0)-(nbC[a]||0));
+  const center=sorted[0];
+  pos[center]={x:cx,y:cy};
+
+  if(n===1){
+    // rien d'autre à placer
+  } else if(n===2){
+    pos[sorted[1]]={x:cx+200,y:cy};
+  } else {
+    // Algorithme spring/force : initialiser en cercle, puis itérer
+    const others=sorted.slice(1);
+    const R=Math.min(W,H)*0.33;
+    others.forEach((p,i)=>{
+      const angle=(2*Math.PI*i/others.length)-Math.PI/2;
+      pos[p]={x:cx+R*Math.cos(angle),y:cy+R*Math.sin(angle)};
+    });
+
+    // Itérations force-directed (50 passes)
+    for(let iter=0;iter<80;iter++){
+      const forces={};
+      postes.forEach(p=>forces[p]={fx:0,fy:0});
+
+      // Attraction vers le centre (gravitée légère)
+      postes.forEach(p=>{
+        if(p===center)return;
+        const dx=cx-pos[p].x,dy=cy-pos[p].y;
+        const dist=Math.sqrt(dx*dx+dy*dy)||1;
+        forces[p].fx+=dx*0.002;
+        forces[p].fy+=dy*0.002;
+      });
+
+      // Attraction entre postes liés (proportionnelle au flux)
+      for(let i=0;i<postes.length;i++){
+        for(let j=i+1;j<postes.length;j++){
+          const a=postes[i],b=postes[j];
+          const fv=gF(a,b);
+          if(fv===0)continue;
+          const dx=pos[b].x-pos[a].x,dy=pos[b].y-pos[a].y;
+          const dist=Math.sqrt(dx*dx+dy*dy)||1;
+          const ideal=180-(fv/maxF)*80; // distance idéale : moins de flux = plus loin
+          const force=(dist-ideal)*0.04*(fv/maxF+0.3);
+          forces[a].fx+=dx/dist*force;
+          forces[a].fy+=dy/dist*force;
+          forces[b].fx-=dx/dist*force;
+          forces[b].fy-=dy/dist*force;
+        }
+      }
+
+      // Répulsion entre tous les postes (éviter chevauchement)
+      for(let i=0;i<postes.length;i++){
+        for(let j=i+1;j<postes.length;j++){
+          const a=postes[i],b=postes[j];
+          const dx=pos[b].x-pos[a].x,dy=pos[b].y-pos[a].y;
+          const dist=Math.sqrt(dx*dx+dy*dy)||1;
+          if(dist<160){
+            const rep=(160-dist)*0.15;
+            forces[a].fx-=dx/dist*rep;
+            forces[a].fy-=dy/dist*rep;
+            forces[b].fx+=dx/dist*rep;
+            forces[b].fy+=dy/dist*rep;
+          }
+        }
+      }
+
+      // Appliquer les forces (centre fixe)
+      postes.forEach(p=>{
+        if(p===center)return;
+        pos[p].x+=forces[p].fx;
+        pos[p].y+=forces[p].fy;
+        // Garder dans les limites
+        const mg=bw/2+20;
+        pos[p].x=Math.max(mg,Math.min(W-mg,pos[p].x));
+        pos[p].y=Math.max(mg+10,Math.min(H-mg-10,pos[p].y));
       });
     }
   }
 
-  // Progress d'apparition des boîtes
-  const boxProgress={};ordre.forEach((p,k)=>{boxProgress[p]=0;});
+  // Particules sur TOUS les liens (pas seulement consécutifs)
+  const links=[];
+  for(let i=0;i<postes.length;i++){
+    for(let j=i+1;j<postes.length;j++){
+      const a=postes[i],b=postes[j];
+      const fv=gF(a,b);
+      if(fv>0) links.push({a,b,fv});
+    }
+  }
+
+  const particles=[];
+  links.forEach(({a,b,fv})=>{
+    const count=Math.max(1,Math.round(fv/maxF*5));
+    for(let p=0;p<count;p++){
+      particles.push({
+        a,b,t:Math.random(),
+        speed:(0.003+Math.random()*0.003)*(Math.random()<0.5?1:-1),
+        size:1.5+fv/maxF*2.5,
+        color:COLORS[postes.indexOf(a)%COLORS.length],
+        alpha:0.5+Math.random()*0.4
+      });
+    }
+  });
+
   let startTime=null;
-  const APPEAR_DURATION=1200; // ms
+  const APPEAR_DURATION=1400;
 
   function getPathPoint(a,b,t){
     const pa=pos[a],pb=pos[b];
-    if(Math.abs(pa.y-pb.y)>80){
-      // courbe de Bézier
-      const cx1=pa.x,cy1=pa.y+70,cx2=pb.x,cy2=pb.y-70;
-      const u=1-t;
-      return{
-        x:u*u*u*pa.x+3*u*u*t*cx1+3*u*t*t*cx2+t*t*t*pb.x,
-        y:u*u*u*pa.y+3*u*u*t*cy1+3*u*t*t*cy2+t*t*t*pb.y
-      };
-    }
     return{x:pa.x+(pb.x-pa.x)*t,y:pa.y+(pb.y-pa.y)*t};
   }
 
@@ -1083,136 +1158,135 @@ function animateU(ordre,sym,nbC){
 
     ctx.clearRect(0,0,W,H);
 
-    // fond dark avec grille
+    // Fond dark avec grille
     ctx.fillStyle='#0a0a08';ctx.fillRect(0,0,W,H);
     ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
     for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
     for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 
-    // connexions (s'affichent progressivement)
-    for(let k=0;k<n-1;k++){
-      const a=ordre[k],b=ordre[k+1],pa=pos[a],pb=pos[b];
-      const fv=gF(a,b);
-      const lw=1+(fv/maxF)*4;
-      const segProg=Math.min(1,globalProg*2);
+    // ── LIENS (tous les liens avec flux > 0) ──
+    links.forEach(({a,b,fv},li)=>{
+      const pa=pos[a],pb=pos[b];
+      const lw=1+(fv/maxF)*5;
+      const segDelay=li/links.length*0.4;
+      const segProg=Math.min(1,Math.max(0,(globalProg-segDelay)/(0.6)));
 
+      // Ligne principale
       ctx.beginPath();
-      if(Math.abs(pa.y-pb.y)>80){
-        const steps=40;
-        ctx.moveTo(pa.x,pa.y);
-        for(let s=1;s<=Math.round(steps*segProg);s++){
-          const pt=getPathPoint(a,b,s/steps);
-          ctx.lineTo(pt.x,pt.y);
-        }
-      }else{
-        ctx.moveTo(pa.x,pa.y);
-        ctx.lineTo(pa.x+(pb.x-pa.x)*segProg,pa.y+(pb.y-pa.y)*segProg);
-      }
+      ctx.moveTo(pa.x,pa.y+(segProg===1?0:0));
+      ctx.lineTo(pa.x+(pb.x-pa.x)*segProg,pa.y+(pb.y-pa.y)*segProg);
       ctx.strokeStyle=COLORS[postes.indexOf(a)%COLORS.length];
-      ctx.lineWidth=lw;ctx.globalAlpha=0.25+(fv/maxF)*0.35;ctx.stroke();ctx.globalAlpha=1;
+      ctx.lineWidth=lw;
+      ctx.globalAlpha=0.2+(fv/maxF)*0.4;
+      ctx.stroke();ctx.globalAlpha=1;
 
-      // label flux
-      if(segProg>0.8){
-        const mp=getPathPoint(a,b,.5);
-        const offset=Math.abs(pa.y-pb.y)>80?0:-18;
-        ctx.fillStyle='rgba(255,255,255,0.7)';
-        ctx.font='700 11px Space Mono,monospace';ctx.textAlign='center';
-        ctx.globalAlpha=segProg;
-        ctx.fillText(fv,mp.x,mp.y+offset);
-        ctx.globalAlpha=1;
+      // Label flux au milieu du lien
+      if(segProg>0.85&&fv>0){
+        const mx=(pa.x+pb.x)/2,my=(pa.y+pb.y)/2;
+        // Petit badge
+        ctx.fillStyle='rgba(10,10,8,0.85)';
+        ctx.beginPath();ctx.arc(mx,my,11,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle=COLORS[postes.indexOf(a)%COLORS.length];
+        ctx.lineWidth=1.5;ctx.stroke();
+        ctx.fillStyle='#ffffff';
+        ctx.font='700 10px Space Mono,monospace';ctx.textAlign='center';
+        ctx.fillText(fv,mx,my+3.5);
       }
-    }
+    });
 
-    // particules de flux animées
+    // ── PARTICULES ──
     if(globalProg>0.5){
       const pAlpha=(globalProg-0.5)*2;
       particles.forEach(p=>{
-        p.t=(p.t+p.speed)%1;
-        const pt=getPathPoint(p.segA,p.segB,p.t);
-        ctx.beginPath();
-        ctx.arc(pt.x,pt.y,p.size,0,Math.PI*2);
-        ctx.fillStyle=p.color;
-        ctx.globalAlpha=p.alpha*pAlpha;
-        ctx.fill();
-        ctx.globalAlpha=1;
+        p.t=((p.t+p.speed)%1+1)%1;
+        const pt=getPathPoint(p.a,p.b,p.t);
         // halo
-        ctx.beginPath();
-        ctx.arc(pt.x,pt.y,p.size*2.5,0,Math.PI*2);
-        const grad=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,p.size*2.5);
-        grad.addColorStop(0,p.color+'88');
+        const grad=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,p.size*3);
+        grad.addColorStop(0,p.color+'cc');
         grad.addColorStop(1,'transparent');
-        ctx.fillStyle=grad;
-        ctx.globalAlpha=p.alpha*pAlpha*0.4;
-        ctx.fill();
-        ctx.globalAlpha=1;
+        ctx.beginPath();ctx.arc(pt.x,pt.y,p.size*3,0,Math.PI*2);
+        ctx.fillStyle=grad;ctx.globalAlpha=p.alpha*pAlpha*0.3;ctx.fill();ctx.globalAlpha=1;
+        // point
+        ctx.beginPath();ctx.arc(pt.x,pt.y,p.size,0,Math.PI*2);
+        ctx.fillStyle=p.color;ctx.globalAlpha=p.alpha*pAlpha;ctx.fill();ctx.globalAlpha=1;
       });
     }
 
-    // boîtes (apparaissent avec délai en cascade)
-    ordre.forEach((p,k)=>{
-      const delay=k/(n*1.5);
+    // ── NOEUDS (boîtes avec apparition en cascade) ──
+    // Trier pour dessiner le centre en dernier (au-dessus)
+    const drawOrder=[...postes].sort((a,b)=>((nbC[a]||0)-(nbC[b]||0)));
+    drawOrder.forEach((p,k)=>{
+      const delay=k/(n*1.5)*0.5;
       const prog=Math.max(0,Math.min(1,(globalProg-delay)/(1-delay+0.01)));
-      if(prog<=0)return;
+      if(prog<=0||!pos[p])return;
 
-      const{x,y}=pos[p],ci=COLORS[postes.indexOf(p)%COLORS.length];
-      const bx=x-bw/2,by=y-bh/2;
-      const scale=0.5+prog*0.5;
-      const alpha=prog;
+      const{x,y}=pos[p];
+      const ci=COLORS[postes.indexOf(p)%COLORS.length];
+      const isCenter=(p===sorted[0]);
+      const nodeW=isCenter?bw+20:bw;
+      const nodeH=isCenter?bh+10:bh;
+      const bx=x-nodeW/2,by=y-nodeH/2;
+      const scale=0.4+prog*0.6;
 
       ctx.save();
       ctx.translate(x,y);ctx.scale(scale,scale);ctx.translate(-x,-y);
-      ctx.globalAlpha=alpha;
+      ctx.globalAlpha=prog;
 
-      // shadow glow
-      ctx.shadowColor=ci;ctx.shadowBlur=20*prog;
+      // Glow
+      ctx.shadowColor=ci;ctx.shadowBlur=isCenter?30*prog:16*prog;
 
-      // box fond
-      ctx.fillStyle='#1a1a14';rr(ctx,bx,by,bw,bh,10);ctx.fill();
+      // Fond
+      ctx.fillStyle='#0f0f0c';rr(ctx,bx,by,nodeW,nodeH,10);ctx.fill();
       ctx.shadowBlur=0;
 
-      // bord coloré
-      ctx.strokeStyle=ci;ctx.lineWidth=2;rr(ctx,bx,by,bw,bh,10);ctx.stroke();
+      // Bordure colorée (plus épaisse pour le centre)
+      ctx.strokeStyle=ci;ctx.lineWidth=isCenter?3:2;
+      rr(ctx,bx,by,nodeW,nodeH,10);ctx.stroke();
 
-      // accent top
-      ctx.fillStyle=ci;rr(ctx,bx,by,bw,5,10);ctx.fill();
+      // Accent top
+      ctx.fillStyle=ci;rr(ctx,bx,by,nodeW,5,10);ctx.fill();
 
-      // text
-      ctx.fillStyle='#ffffff';ctx.font='700 13px Syne,sans-serif';ctx.textAlign='center';
-      ctx.fillText(p,x,y+4);
-      ctx.font='400 10px Space Mono,monospace';ctx.fillStyle='rgba(255,255,255,.5)';
-      ctx.fillText(`C=${nbC[p]}`,x,y+18);
+      // Nom du poste
+      ctx.fillStyle='#ffffff';
+      ctx.font=`700 ${isCenter?14:12}px Syne,sans-serif`;
+      ctx.textAlign='center';
+      ctx.fillText(p,x,y+3);
+
+      // C= (chaînons)
+      ctx.font='400 9px Space Mono,monospace';
+      ctx.fillStyle='rgba(255,255,255,0.55)';
+      ctx.fillText('C='+nbC[p],x,y+15);
+
+      // Rang
+      const rang=sorted.indexOf(p)+1;
       ctx.fillStyle=ci;
-      ctx.fillText(`#${k+1}`,x,y+30);
+      ctx.font='700 9px Space Mono,monospace';
+      ctx.fillText('#'+rang,x,y+26);
+
+      // Couronne "CENTRE" pour le poste principal
+      if(isCenter&&prog>0.7){
+        ctx.font='600 8px Space Mono,monospace';
+        ctx.fillStyle=ci;
+        ctx.globalAlpha=(prog-0.7)*3.33;
+        ctx.fillText('● CENTRE',x,by-8);
+        ctx.globalAlpha=prog;
+      }
 
       ctx.restore();ctx.globalAlpha=1;
     });
 
-    // labels ENTRÉE / SORTIE (pulsent)
-    if(globalProg>0.8&&n>=2){
-      const pulse=0.7+0.3*Math.sin(ts/400);
-      const pe=pos[ordre[0]],ps=pos[ordre[n-1]];
-      ctx.font='700 10px Space Mono,monospace';ctx.textAlign='center';
-      ctx.globalAlpha=pulse*(globalProg-0.8)*5;
-      ctx.fillStyle='#18a86b';ctx.fillText('▼ ENTRÉE',pe.x,pe.y-bh/2-12);
-      ctx.fillStyle='#e8401c';ctx.fillText('▼ SORTIE',ps.x,ps.y-bh/2-12);
+    // Légende
+    if(globalProg>0.85){
+      const la=(globalProg-0.85)*6.67;
+      ctx.globalAlpha=Math.min(1,la);
+      ctx.font='400 10px Space Mono,monospace';
+      ctx.fillStyle='rgba(255,255,255,0.3)';
+      ctx.textAlign='left';
+      ctx.fillText('Épaisseur des liens = indice de flux',14,H-10);
+      ctx.textAlign='right';
+      ctx.fillStyle='rgba(24,168,107,0.6)';
+      ctx.fillText('● Poste central = '+sorted[0]+' (C='+nbC[sorted[0]]+')',W-14,H-10);
       ctx.globalAlpha=1;
-    }
-
-    // flèche flux en bas
-    if(globalProg>0.7){
-      const fa=(globalProg-0.7)*3.33;
-      const ay=H-18,fw=(W-60)*fa;
-      ctx.beginPath();ctx.moveTo(30,ay);ctx.lineTo(30+fw,ay);
-      ctx.strokeStyle='#18a86b';ctx.lineWidth=1.5;
-      ctx.setLineDash([6,4]);ctx.globalAlpha=fa;ctx.stroke();
-      ctx.setLineDash([]);ctx.globalAlpha=1;
-      if(fa>0.8){
-        ctx.fillStyle='#18a86b';
-        ctx.beginPath();ctx.moveTo(30+fw,ay);ctx.lineTo(30+fw-10,ay-5);ctx.lineTo(30+fw-10,ay+5);ctx.closePath();ctx.fill();
-        ctx.font='600 11px Syne,sans-serif';ctx.textAlign='center';
-        ctx.fillStyle='rgba(24,168,107,0.7)';
-        ctx.fillText('Flux de production',W/2,ay-7);
-      }
     }
 
     _animFrame=requestAnimationFrame(draw);
